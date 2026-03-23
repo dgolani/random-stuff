@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Dinesh · Ounass 2025</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,500&family=DM+Sans:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#0d0d0d;--paper:#F8F5F0;--cream:#EDE8E0;
+  --gold:#B8944A;--gold-soft:#D4B17A;--gold-faint:#F0E8D5;
+  --warm-gray:#8a8278;--light-line:#DDD7CC;
+  --serif:'Cormorant Garamond',serif;
+  --sans:'DM Sans',sans-serif;
+}
+html,body{height:100%;background:var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--sans);}@media(max-width:600px){#wrap{padding:0;}#phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none;}}
+#wrap{display:flex;align-items:center;justify-content:center;padding:24px 12px;min-height:100vh;width:100%;}
+#phone{
+  width:335px;height:660px;
+  background:var(--paper);
+  border-radius:38px;
+  overflow:hidden;
+  position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06),0 50px 100px rgba(0,0,0,0.8);
+}
+#stage{width:100%;height:100%;position:relative;overflow:hidden;}
+.card{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.7s ease,transform 0.7s cubic-bezier(0.22,1,0.36,1);
+}
+.card.active{opacity:1;pointer-events:all;}
+.card.out{opacity:0;transform:scale(0.97);}
+#dots{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:20;}
+.dot{width:4px;height:4px;border-radius:50%;background:rgba(0,0,0,0.15);transition:all 0.4s ease;cursor:pointer;}
+.dot.active{width:16px;border-radius:2px;background:var(--gold);}
+#tap-left,#tap-right{position:absolute;top:0;bottom:0;width:45%;z-index:15;cursor:pointer;}
+#tap-right{right:0;}#tap-left{left:0;}
+
+/* CARD 1 */
+#c1{background:var(--ink);justify-content:space-between;padding:50px 32px 40px;}
+.c1-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.ounass-wordmark{font-family:var(--sans);font-weight:200;font-size:16px;letter-spacing:0.4em;color:rgba(255,255,255,0.9);}
+.c1-year-badge{font-family:var(--serif);font-size:12px;font-weight:300;color:var(--gold);letter-spacing:0.1em;border:1px solid rgba(184,148,74,0.3);border-radius:20px;padding:4px 12px;}
+.c1-center{flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;}
+.c1-hello{font-family:var(--sans);font-weight:200;font-size:11px;letter-spacing:0.3em;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:6px;}
+.c1-name{font-family:var(--serif);font-size:58px;font-weight:300;font-style:italic;color:var(--paper);line-height:1;opacity:0;animation:riseIn 1s 0.2s forwards;}
+.c1-desc{font-family:var(--serif);font-size:16px;font-weight:300;color:var(--gold-soft);line-height:1.5;margin-top:16px;opacity:0;animation:riseIn 1s 0.7s forwards;}
+.c1-line{width:32px;height:1px;background:rgba(184,148,74,0.4);margin:20px 0;}
+.c1-bottom{text-align:center;}
+.c1-tap{font-size:10px;font-weight:300;letter-spacing:0.25em;color:rgba(255,255,255,0.18);text-transform:uppercase;opacity:0;animation:riseIn 1s 1.4s forwards;}
+
+/* CARD 2 */
+#c2{background:var(--paper);padding:0;}
+.c2-img{height:200px;background:var(--ink);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;flex-shrink:0;}
+.c2-img-text{font-family:var(--serif);font-size:80px;font-weight:300;font-style:italic;color:rgba(255,255,255,0.06);position:absolute;}
+.c2-family-icons{display:flex;align-items:flex-end;gap:10px;position:relative;z-index:2;}
+.c2-figure{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.c2-circle{border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(184,148,74,0.3);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.7);font-size:20px;}
+.c2-flabel{font-size:9px;letter-spacing:0.15em;color:rgba(255,255,255,0.3);text-transform:uppercase;}
+.c2-body{padding:24px 28px;}
+.c2-eyebrow{font-size:9px;font-weight:400;letter-spacing:0.3em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
+.c2-headline{font-family:var(--serif);font-size:28px;font-weight:400;line-height:1.25;color:var(--ink);margin-bottom:14px;}
+.c2-copy{font-size:13px;font-weight:300;line-height:1.7;color:var(--warm-gray);}
+.c2-copy em{font-style:italic;color:var(--ink);font-family:var(--serif);font-size:14px;}
+
+/* CARD 3 */
+#c3{background:var(--cream);justify-content:flex-start;padding:0;}
+.c3-top{background:var(--ink);padding:40px 28px 28px;flex-shrink:0;position:relative;overflow:hidden;}
+.c3-bg-letter{position:absolute;right:-10px;top:-20px;font-family:var(--serif);font-size:160px;font-weight:300;font-style:italic;color:rgba(255,255,255,0.03);line-height:1;pointer-events:none;}
+.c3-label{font-size:9px;letter-spacing:0.3em;color:rgba(184,148,74,0.6);text-transform:uppercase;margin-bottom:8px;}
+.c3-month{font-family:var(--serif);font-size:42px;font-weight:300;font-style:italic;color:var(--paper);line-height:1;}
+.c3-sub{font-size:11px;font-weight:300;color:rgba(255,255,255,0.3);margin-top:4px;letter-spacing:0.05em;}
+.c3-body{padding:24px 28px;flex:1;}
+.c3-copy{font-family:var(--serif);font-size:20px;font-weight:300;font-style:italic;color:var(--ink);line-height:1.45;margin-bottom:20px;}
+.c3-items{display:flex;flex-direction:column;gap:8px;}
+.c3-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,0,0,0.04);border-radius:10px;border-left:2px solid var(--gold-soft);}
+.c3-item-name{font-size:11px;font-weight:400;color:var(--ink);flex:1;letter-spacing:0.02em;}
+.c3-item-brand{font-size:9px;letter-spacing:0.15em;color:var(--warm-gray);text-transform:uppercase;}
+
+/* CARD 4 */
+#c4{background:var(--paper);padding:40px 28px 30px;justify-content:flex-start;}
+.c4-date-pill{display:inline-flex;align-items:center;gap:6px;background:var(--gold-faint);border:1px solid rgba(184,148,74,0.25);border-radius:20px;padding:5px 14px;margin-bottom:18px;}
+.c4-date-text{font-size:10px;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;}
+.c4-headline{font-family:var(--serif);font-size:30px;font-weight:400;line-height:1.2;color:var(--ink);margin-bottom:6px;}
+.c4-sub{font-size:12px;font-weight:300;color:var(--warm-gray);line-height:1.5;margin-bottom:20px;}
+.c4-scroll{display:flex;flex-direction:column;gap:6px;flex:1;overflow:hidden;}
+.c4-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--light-line);}
+.c4-dot-brand{width:6px;height:6px;border-radius:50%;background:var(--gold-soft);flex-shrink:0;}
+.c4-item-name{font-size:11px;color:var(--ink);flex:1;letter-spacing:0.01em;}
+.c4-for{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:2px 7px;border-radius:20px;flex-shrink:0;}
+.c4-for.him{background:rgba(13,13,13,0.07);color:rgba(13,13,13,0.4);}
+.c4-for.her{background:rgba(184,148,74,0.1);color:var(--gold);}
+.c4-for.kids{background:rgba(120,160,120,0.1);color:#5a8a5a;}
+.c4-footer{margin-top:14px;padding:12px 14px;background:var(--gold-faint);border-radius:12px;font-family:var(--serif);font-size:14px;font-style:italic;color:var(--ink);line-height:1.4;}
+
+/* CARD 5 */
+#c5{background:var(--ink);padding:48px 28px 36px;justify-content:flex-start;}
+.c5-time-display{font-family:var(--serif);font-size:80px;font-weight:300;color:var(--gold);line-height:1;letter-spacing:-0.02em;margin-bottom:4px;}
+.c5-time-sub{font-size:10px;letter-spacing:0.25em;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-bottom:24px;}
+.c5-copy{font-family:var(--serif);font-size:20px;font-weight:300;font-style:italic;color:rgba(255,255,255,0.8);line-height:1.5;margin-bottom:28px;}
+.c5-bars{display:flex;align-items:flex-end;gap:5px;height:60px;margin-bottom:20px;}
+.c5-bar-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
+.c5-bar{width:100%;border-radius:3px 3px 0 0;background:rgba(255,255,255,0.06);position:relative;overflow:hidden;}
+.c5-bar.peak .bar-fill{background:var(--gold);}
+.bar-fill{position:absolute;bottom:0;left:0;right:0;border-radius:3px 3px 0 0;background:rgba(255,255,255,0.18);height:0%;transition:height 1.2s cubic-bezier(0.22,1,0.36,1);}
+.c5-bar-lbl{font-size:8px;color:rgba(255,255,255,0.2);letter-spacing:0.05em;}
+.c5-stat-row{display:flex;gap:10px;}
+.c5-stat{flex:1;padding:12px 10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:10px;text-align:center;}
+.c5-stat-val{font-family:var(--serif);font-size:20px;font-weight:300;color:var(--gold-soft);line-height:1;}
+.c5-stat-lbl{font-size:8px;letter-spacing:0.15em;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-top:4px;}
+
+/* CARD 6 */
+#c6{background:var(--paper);padding:0;justify-content:flex-start;}
+.c6-header{background:var(--ink);padding:36px 28px 24px;position:relative;overflow:hidden;flex-shrink:0;}
+.c6-header-bg{position:absolute;right:-20px;bottom:-30px;font-family:var(--serif);font-size:130px;font-weight:600;font-style:italic;color:rgba(255,255,255,0.03);line-height:1;}
+.c6-label{font-size:9px;letter-spacing:0.3em;color:rgba(184,148,74,0.5);text-transform:uppercase;margin-bottom:6px;}
+.c6-brand{font-family:var(--serif);font-size:40px;font-weight:300;color:var(--paper);letter-spacing:0.08em;}
+.c6-tagline{font-size:11px;font-weight:300;color:rgba(255,255,255,0.3);margin-top:4px;letter-spacing:0.05em;}
+.c6-body{padding:22px 28px;flex:1;}
+.c6-insight{font-family:var(--serif);font-size:18px;font-weight:300;font-style:italic;color:var(--ink);line-height:1.5;margin-bottom:18px;}
+.c6-pieces{display:flex;flex-direction:column;gap:6px;}
+.c6-piece{padding:10px 14px;background:rgba(0,0,0,0.03);border-radius:8px;display:flex;justify-content:space-between;align-items:center;}
+.c6-piece-name{font-size:11px;color:var(--ink);letter-spacing:0.02em;}
+.c6-piece-price{font-family:var(--serif);font-size:13px;color:var(--warm-gray);font-weight:300;}
+.c6-total{margin-top:14px;padding:12px 14px;background:var(--gold-faint);border:1px solid rgba(184,148,74,0.2);border-radius:10px;display:flex;justify-content:space-between;align-items:center;}
+.c6-total-lbl{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);}
+.c6-total-val{font-family:var(--serif);font-size:20px;font-weight:400;color:var(--ink);}
+
+/* CARD 7 */
+#c7{background:var(--cream);padding:42px 28px 36px;justify-content:flex-start;}
+.c7-eyebrow{font-size:9px;letter-spacing:0.3em;color:var(--gold);text-transform:uppercase;margin-bottom:14px;}
+.c7-portrait{font-family:var(--serif);font-size:26px;font-weight:400;font-style:italic;color:var(--ink);line-height:1.35;margin-bottom:20px;}
+.c7-portrait span{color:var(--gold);}
+.c7-traits{display:flex;flex-direction:column;gap:8px;}
+.c7-trait{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.7);border-radius:10px;}
+.c7-trait-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.c7-trait-title{font-size:11px;font-weight:400;color:var(--ink);letter-spacing:0.04em;margin-bottom:2px;}
+.c7-trait-sub{font-size:11px;font-weight:300;color:var(--warm-gray);line-height:1.4;}
+
+/* CARD 8 */
+#c8{background:var(--ink);padding:50px 28px 40px;justify-content:space-between;}
+.c8-top{text-align:center;}
+.c8-logo{font-family:var(--sans);font-weight:200;font-size:16px;letter-spacing:0.4em;color:rgba(255,255,255,0.5);margin-bottom:28px;}
+.c8-headline{font-family:var(--serif);font-size:34px;font-weight:300;font-style:italic;color:var(--paper);line-height:1.25;margin-bottom:10px;}
+.c8-sub{font-size:12px;font-weight:300;color:rgba(255,255,255,0.3);line-height:1.7;letter-spacing:0.05em;}
+.c8-stat-block{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:20px;display:flex;}
+.c8-stat{flex:1;text-align:center;}
+.c8-stat+.c8-stat{border-left:1px solid rgba(255,255,255,0.07);}
+.c8-stat-n{font-family:var(--serif);font-size:28px;font-weight:300;color:var(--gold);line-height:1;}
+.c8-stat-l{font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-top:5px;}
+.c8-amber{text-align:center;padding:18px;background:rgba(184,148,74,0.08);border:1px solid rgba(184,148,74,0.15);border-radius:16px;}
+.c8-amber-n{font-family:var(--serif);font-size:38px;font-weight:300;color:var(--gold);}
+.c8-amber-l{font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:rgba(184,148,74,0.5);margin-top:4px;}
+.c8-sign{font-family:var(--serif);font-size:13px;font-style:italic;color:rgba(255,255,255,0.15);text-align:center;}
+
+@keyframes riseIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+#mute-btn {
+  position: absolute;
+  top: 22px; right: 20px;
+  z-index: 30;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  backdrop-filter: blur(4px);
+}
+#mute-btn:hover { background: rgba(255,255,255,0.12); }
+#mute-btn svg { width: 14px; height: 14px; }
+</style>
+</head>
+<body>
+<div id="wrap">
+ <div id="phone">
+  <div id="stage">
+
+   <div class="card active" id="c1">
+    <div class="c1-top">
+     <div class="ounass-wordmark">OUNASS</div>
+     <div class="c1-year-badge">2025 — 2026</div>
+    </div>
+    <div class="c1-center">
+     <div class="c1-hello">A year in the life of</div>
+     <div class="c1-name">Dinesh</div>
+     <div class="c1-line"></div>
+     <div class="c1-desc">You didn't just shop this year.<br>You curated a life.</div>
+    </div>
+    <div class="c1-bottom">
+     <div class="c1-tap">Tap to begin your story</div>
+    </div>
+   </div>
+
+   <div class="card" id="c2">
+    <div class="c2-img">
+     <div class="c2-img-text">Family</div>
+     <div class="c2-family-icons">
+      <div class="c2-figure"><div class="c2-circle" style="width:36px;height:36px;">👦</div><div class="c2-flabel">Him</div></div>
+      <div class="c2-figure"><div class="c2-circle" style="width:48px;height:48px;border-color:rgba(184,148,74,0.5);">👤</div><div class="c2-flabel">You</div></div>
+      <div class="c2-figure"><div class="c2-circle" style="width:40px;height:40px;">👩</div><div class="c2-flabel">Her</div></div>
+      <div class="c2-figure"><div class="c2-circle" style="width:30px;height:30px;">🧒</div><div class="c2-flabel">Little one</div></div>
+     </div>
+    </div>
+    <div class="c2-body">
+     <div class="c2-eyebrow">What we noticed</div>
+     <div class="c2-headline">You shop like someone who loves his people.</div>
+     <div class="c2-copy">Fendi sneakers for the little one. <em>YSL Black Opium</em> and Jacquemus bags — someone special. Polo Ralph Lauren, Hackett, On Running for the kids. You rarely shop just for yourself. When you do, it counts.</div>
+    </div>
+   </div>
+
+   <div class="card" id="c3">
+    <div class="c3-top">
+     <div class="c3-bg-letter">May</div>
+     <div class="c3-label">Your biggest chapter</div>
+     <div class="c3-month">May 2025</div>
+     <div class="c3-sub">The month you leaned all the way in</div>
+    </div>
+    <div class="c3-body">
+     <div class="c3-copy">"Two Prada bags in 24 hours. That's not shopping — that's a statement."</div>
+     <div class="c3-items">
+      <div class="c3-item"><div><div class="c3-item-name">Large Tote Bag in Leather</div><div class="c3-item-brand">Prada · 07 May</div></div></div>
+      <div class="c3-item"><div><div class="c3-item-name">Triangle Logo Boots</div><div class="c3-item-brand">Prada · 07 May</div></div></div>
+      <div class="c3-item"><div><div class="c3-item-name">Small Camera Crossbody</div><div class="c3-item-brand">Prada · 08 May</div></div></div>
+     </div>
+    </div>
+   </div>
+
+   <div class="card" id="c4">
+    <div class="c4-date-pill"><div class="c4-date-text">7 October 2025</div></div>
+    <div class="c4-headline">Your biggest<br>family day.</div>
+    <div class="c4-sub">31 items. One Tuesday morning. Everyone dressed.</div>
+    <div class="c4-scroll">
+     <div class="c4-row"><div class="c4-dot-brand"></div><div class="c4-item-name">Cloudflyer 4 Running Shoes</div><span class="c4-for him">Him</span></div>
+     <div class="c4-row"><div class="c4-dot-brand"></div><div class="c4-item-name">Le Chiquito Bag · Jacquemus</div><span class="c4-for her">Her</span></div>
+     <div class="c4-row"><div class="c4-dot-brand"></div><div class="c4-item-name">Rio Flower Sandals · Birkenstock</div><span class="c4-for kids">Kids</span></div>
+     <div class="c4-row"><div class="c4-dot-brand"></div><div class="c4-item-name">Dunk Low Sneakers · Nike</div><span class="c4-for kids">Kids</span></div>
+     <div class="c4-row"><div class="c4-dot-brand"></div><div class="c4-item-name">Fleet Chino Pants · Vuori</div><span class="c4-for him">Him</span></div>
+     <div class="c4-row"><div class="c4-dot-brand"></div><div class="c4-item-name">2002R Sneakers · New Balance</div><span class="c4-for her">Her</span></div>
+    </div>
+    <div class="c4-footer">You dressed your whole family in one morning. That's love with a cart.</div>
+   </div>
+
+   <div class="card" id="c5">
+    <div class="c5-time-display">10:00</div>
+    <div class="c5-time-sub">Your shopping hour</div>
+    <div class="c5-copy">Most mornings, just after the first coffee, you opened Ounass.</div>
+    <div class="c5-bars" id="hourBars"></div>
+    <div class="c5-stat-row">
+     <div class="c5-stat"><div class="c5-stat-val">Tue</div><div class="c5-stat-lbl">Fav day</div></div>
+     <div class="c5-stat"><div class="c5-stat-val">48</div><div class="c5-stat-lbl">Orders</div></div>
+     <div class="c5-stat"><div class="c5-stat-val">iOS</div><div class="c5-stat-lbl">Always</div></div>
+    </div>
+   </div>
+
+   <div class="card" id="c6">
+    <div class="c6-header">
+     <div class="c6-header-bg">Prada</div>
+     <div class="c6-label">Your house of choice</div>
+     <div class="c6-brand">PRADA</div>
+     <div class="c6-tagline">5 pieces across the year</div>
+    </div>
+    <div class="c6-body">
+     <div class="c6-insight">"You kept coming back. Prada wasn't a purchase — it was a perspective."</div>
+     <div class="c6-pieces">
+      <div class="c6-piece"><span class="c6-piece-name">Large Tote in Leather</span><span class="c6-piece-price">AED 5,476</span></div>
+      <div class="c6-piece"><span class="c6-piece-name">Small Camera Crossbody</span><span class="c6-piece-price">AED 4,762</span></div>
+      <div class="c6-piece"><span class="c6-piece-name">Triangle Logo Boots</span><span class="c6-piece-price">AED 1,524</span></div>
+      <div class="c6-piece"><span class="c6-piece-name">Re-Nylon Sneakers ×2</span><span class="c6-piece-price">AED 1,886</span></div>
+     </div>
+     <div class="c6-total">
+      <span class="c6-total-lbl">Prada total</span>
+      <span class="c6-total-val">AED 13,648</span>
+     </div>
+    </div>
+   </div>
+
+   <div class="card" id="c7">
+    <div class="c7-eyebrow">Who you are here</div>
+    <div class="c7-portrait">You have taste. You have <span>standards</span>. And you're not afraid to return something that doesn't feel right.</div>
+    <div class="c7-traits">
+     <div class="c7-trait"><div class="c7-trait-icon">↩️</div><div><div class="c7-trait-title">You know when something's off</div><div class="c7-trait-sub">16 returns — mostly "doesn't suit me." You trust your eye.</div></div></div>
+     <div class="c7-trait"><div class="c7-trait-icon">🌿</div><div><div class="c7-trait-title">Quiet values</div><div class="c7-trait-sub">Eco packaging, every time. No one sees it. You still choose it.</div></div></div>
+     <div class="c7-trait"><div class="c7-trait-icon">⚡</div><div><div class="c7-trait-title">Impatient for the right reasons</div><div class="c7-trait-sub">Same-day or 2-hour delivery — because waiting isn't your style.</div></div></div>
+    </div>
+   </div>
+
+   <div class="card" id="c8">
+    <div class="c8-top">
+     <div class="c8-logo">OUNASS</div>
+     <div class="c8-headline">Here's to you,<br>and everyone<br>you dressed.</div>
+     <div class="c8-sub">Feb 2025 to Mar 2026<br>14 months · 123 pieces · one life, curated</div>
+    </div>
+    <div class="c8-stat-block">
+     <div class="c8-stat"><div class="c8-stat-n">48</div><div class="c8-stat-l">Orders</div></div>
+     <div class="c8-stat"><div class="c8-stat-n">AED 5.1k</div><div class="c8-stat-l">Saved</div></div>
+     <div class="c8-stat"><div class="c8-stat-n">23</div><div class="c8-stat-l">Kids pieces</div></div>
+    </div>
+    <div class="c8-amber">
+     <div class="c8-amber-n">29,476</div>
+     <div class="c8-amber-l">Amber points earned</div>
+    </div>
+    <div class="c8-sign">Inner Circle · Dubai · Thank you.</div>
+   </div>
+
+  </div>
+  
+  <button id="mute-btn" title="Toggle music">
+    <svg id="icon-sound" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+    </svg>
+    <svg id="icon-mute" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <line x1="23" y1="9" x2="17" y2="15"/>
+      <line x1="17" y1="9" x2="23" y2="15"/>
+    </svg>
+  </button>
+
+  <div id="dots"></div>
+  <div id="tap-left" onclick="go(-1)"></div>
+  <div id="tap-right" onclick="go(1)"></div>
+ </div>
+</div>
+
+<script>
+const cards=document.querySelectorAll('.card');
+const dotsEl=document.getElementById('dots');
+let cur=0;
+cards.forEach((_,i)=>{
+  const d=document.createElement('div');
+  d.className='dot'+(i===0?' active':'');
+  d.onclick=(e)=>{e.stopPropagation();goTo(i);};
+  dotsEl.appendChild(d);
+});
+function goTo(n){
+  if(n<0||n>=cards.length)return;
+  cards[cur].classList.remove('active');
+  cards[cur].classList.add('out');
+  setTimeout(()=>cards[cur].classList.remove('out'),700);
+  cur=n;
+  cards[cur].classList.add('active');
+  document.querySelectorAll('.dot').forEach((d,i)=>{d.className='dot'+(i===cur?' active':'');});
+  onEnter(cur);
+}
+function go(dir){goTo(cur+dir);}
+function onEnter(idx){
+  if(idx===4){
+    const data=[1,0,6,30,15,21,7,9,1,9,4,3,5,8];
+    const labels=['5','9','10','11','12','13','14','15','16','17','18','19','20','21'];
+    const peak=2;
+    const el=document.getElementById('hourBars');
+    el.innerHTML='';
+    data.forEach((v,i)=>{
+      const h=(v/30)*100;
+      const wrap=document.createElement('div');
+      wrap.className='c5-bar-wrap';
+      wrap.innerHTML=`<div class="c5-bar${i===peak?' peak':''}" style="height:${Math.max(h,4)}%"><div class="bar-fill"></div></div><div class="c5-bar-lbl">${labels[i]}</div>`;
+      el.appendChild(wrap);
+    });
+    setTimeout(()=>{
+      el.querySelectorAll('.bar-fill').forEach((b,i)=>{
+        setTimeout(()=>{b.style.height=(data[i]/30*100)+'%';},i*60);
+      });
+    },200);
+  }
+}
+</script>
+
+<audio id="bg-audio" src="backstory.mp3" loop preload="auto"></audio>
+<script>
+(function(){
+  const audio = document.getElementById('bg-audio');
+  const btn = document.getElementById('mute-btn');
+  const iconSound = document.getElementById('icon-sound');
+  const iconMute = document.getElementById('icon-mute');
+  let started = false;
+  let muted = false;
+
+  audio.volume = 0;
+
+  function startAudio() {
+    if (started) return;
+    started = true;
+    audio.play().then(() => {
+      fadeIn();
+    }).catch(() => {});
+  }
+
+  function fadeIn() {
+    let v = 0;
+    const interval = setInterval(() => {
+      v = Math.min(v + 0.02, 0.35);
+      audio.volume = muted ? 0 : v;
+      if (v >= 0.35) clearInterval(interval);
+    }, 80);
+  }
+
+  // Start on first tap anywhere
+  document.getElementById('stage').addEventListener('click', startAudio, { once: true });
+  document.getElementById('tap-left').addEventListener('click', startAudio, { once: true });
+  document.getElementById('tap-right').addEventListener('click', startAudio, { once: true });
+
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    muted = !muted;
+    audio.volume = muted ? 0 : 0.35;
+    iconSound.style.display = muted ? 'none' : 'block';
+    iconMute.style.display = muted ? 'block' : 'none';
+  });
+})();
+</script>
+
+</body>
+</html>
