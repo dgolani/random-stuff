@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luxury Market Expansion Screener — Ounass</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0c0e;
+  --surface:#16161a;
+  --surface2:#1e1e24;
+  --border:rgba(255,255,255,0.09);
+  --border2:rgba(255,255,255,0.18);
+  --text:#f0ede8;
+  --muted:#a09ca8;
+  --hint:#686470;
+  --accent:#c9a96e;
+  --accent2:#e8d5b0;
+  --green:#4caf7d;
+  --warn:#e09a4a;
+  --danger:#d95b5b;
+  --rad:10px;
+  --rad-lg:14px;
+}
+html{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.6}
+body{min-height:100vh;padding:0}
+
+/* Layout */
+.shell{display:grid;grid-template-columns:380px 1fr;min-height:100vh}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:28px 20px;overflow-y:auto;position:sticky;top:0;height:100vh}
+.main{padding:28px 28px 60px;overflow-y:auto}
+
+/* Header */
+.wordmark{font-family:'DM Serif Display',serif;font-size:13px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:24px;display:flex;align-items:center;gap:8px}
+.wordmark::before{content:'';width:18px;height:1px;background:var(--accent);display:inline-block}
+.sidebar-title{font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--hint);margin-bottom:12px}
+
+/* Step cards */
+.steps-list{display:flex;flex-direction:column;gap:7px}
+.step-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rad);overflow:hidden;transition:border-color .2s,opacity .2s;cursor:default}
+.step-card:hover{border-color:var(--border2)}
+.step-card.disabled{opacity:.35}
+.step-header{display:flex;align-items:center;gap:10px;padding:11px 14px}
+.drag-handle{color:var(--hint);font-size:15px;cursor:grab;flex-shrink:0;user-select:none}
+.drag-handle:active{cursor:grabbing}
+.step-num{width:22px;height:22px;border-radius:50%;background:rgba(201,169,110,0.14);color:var(--accent);font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-name{flex:1;font-size:13px;font-weight:500;color:var(--text)}
+.step-count{font-size:12px;color:var(--muted);flex-shrink:0}
+.expand-btn{color:var(--muted);font-size:11px;cursor:pointer;padding:2px 4px;flex-shrink:0}
+.toggle-wrap{flex-shrink:0}
+.toggle{position:relative;width:34px;height:20px}
+.toggle input{opacity:0;width:0;height:0}
+.tog-slider{position:absolute;inset:0;border-radius:20px;background:var(--hint);cursor:pointer;transition:.2s}
+.toggle input:checked~.tog-slider{background:var(--accent)}
+.tog-slider:before{content:'';position:absolute;width:14px;height:14px;left:3px;bottom:3px;border-radius:50%;background:#fff;transition:.2s}
+.toggle input:checked~.tog-slider:before{left:17px}
+.step-body{padding:0 14px 14px;border-top:1px solid var(--border)}
+.step-body.closed{display:none}
+.step-desc{font-size:12px;color:var(--muted);line-height:1.6;margin:11px 0 6px}
+.step-source{font-size:11px;color:var(--hint);margin-bottom:12px;font-style:italic}
+
+/* Param rows */
+.param-row{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.param-row-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.param-label{font-size:12px;color:var(--muted);line-height:1.4}
+.param-val{font-size:13px;font-weight:500;color:var(--accent2);min-width:62px;text-align:center;background:rgba(201,169,110,0.12);border:1px solid rgba(201,169,110,0.28);border-radius:6px;padding:2px 10px;letter-spacing:.01em;white-space:nowrap;flex-shrink:0}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;border-radius:2px;background:rgba(255,255,255,0.14);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--surface2);box-shadow:0 0 0 1px rgba(201,169,110,0.6)}
+input[type=range]:hover::-webkit-slider-thumb{background:var(--accent2)}
+select{background:var(--surface);border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:4px 8px;font-size:12px;flex:1}
+
+/* Main area */
+.page-title{font-family:'DM Serif Display',serif;font-size:30px;font-weight:400;color:var(--text);margin-bottom:5px;line-height:1.2}
+.page-title em{font-style:italic;color:var(--accent)}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
+
+/* Funnel */
+.funnel-section{margin-bottom:28px}
+.section-label{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--hint);margin-bottom:12px}
+.funnel{display:flex;align-items:flex-end;gap:0;height:110px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rad-lg);padding:16px 20px 10px;overflow-x:auto}
+.f-stage{display:flex;flex-direction:column;align-items:center;min-width:76px}
+.f-bar{width:42px;border-radius:3px 3px 0 0;background:var(--accent);opacity:.85;transition:height .4s,opacity .2s;min-height:4px}
+.f-stage.off .f-bar{background:var(--hint);opacity:.3}
+.f-count{font-size:14px;font-weight:500;color:var(--text);margin-top:6px}
+.f-label{font-size:10px;color:var(--muted);text-align:center;line-height:1.3;max-width:72px;margin-top:2px}
+.f-arrow{color:var(--hint);font-size:18px;padding:0 3px;align-self:center;margin-bottom:20px}
+
+/* Stats bar */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad);padding:14px 16px}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.stat-val{font-size:22px;font-weight:300;color:var(--text)}
+.stat-val span{font-size:12px;color:var(--muted);font-weight:400}
+
+/* Country cards */
+.country-grid{display:flex;flex-direction:column;gap:8px}
+.c-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad-lg);padding:16px 18px;cursor:pointer;transition:border-color .2s,background .2s;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
+.c-card:hover{border-color:rgba(201,169,110,0.4);background:rgba(201,169,110,0.04)}
+.c-flag{font-size:28px;line-height:1}
+.c-name{font-size:15px;font-weight:500;color:var(--text);margin-bottom:3px}
+.c-meta{font-size:12px;color:var(--muted);line-height:1.6}
+.c-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.c-score{font-family:'DM Serif Display',serif;font-size:24px;color:var(--accent);line-height:1}
+.c-score-label{font-size:10px;color:var(--hint);text-align:right}
+.c-tags{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.tag{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500}
+.tag.ok{background:rgba(76,175,125,.18);color:#5fcc92}
+.tag.warn{background:rgba(224,154,74,.18);color:#e8a855}
+.tag.bad{background:rgba(217,91,91,.15);color:#e06868}
+.empty{color:var(--muted);font-size:14px;text-align:center;padding:40px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rad-lg)}
+
+/* Drag states */
+.dragging{opacity:.4}
+.drag-over{border-color:var(--accent) !important}
+
+/* Click hint */
+.click-hint{font-size:11px;color:var(--hint);text-align:right;margin-top:8px;font-style:italic}
+
+@media(max-width:960px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border)}
+  .stats-bar{grid-template-columns:repeat(2,1fr)}
+}
+
+.modal-competitors{padding:14px 22px;border-top:1px solid rgba(255,255,255,0.07)}
+.modal-competitors-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.modal-comp-title{font-size:12px;font-weight:500;color:var(--muted)}
+.modal-comp-eb{font-size:12px;font-weight:500;padding:2px 10px;border-radius:20px}
+.eb-high{background:rgba(217,91,91,.15);color:#e06868}
+.eb-mid{background:rgba(224,154,74,.15);color:#e8a855}
+.eb-low{background:rgba(76,175,125,.15);color:#5fcc92}
+.modal-comp-bar-wrap{height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;margin-bottom:10px}
+.modal-comp-bar{height:100%;border-radius:3px;transition:width .4s}
+.modal-comp-list{display:flex;flex-wrap:wrap;gap:6px}
+.modal-comp-pill{font-size:11px;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,0.07);color:var(--muted);border:1px solid rgba(255,255,255,0.1)}
+.modal-comp-empty{font-size:12px;color:var(--hint);font-style:italic}
+.modal-player-breakdown{padding:14px 22px;border-top:1px solid rgba(255,255,255,0.07)}
+.modal-pb-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--hint);margin-bottom:12px}
+.modal-pb-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.modal-pb-name{font-size:12px;color:var(--muted);width:160px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.modal-pb-bar-wrap{flex:1;height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden}
+.modal-pb-bar{height:100%;border-radius:3px;transition:width .5s}
+.modal-pb-pct{font-size:11px;color:var(--hint);width:36px;text-align:right;flex-shrink:0}
+.modal-pb-whitespace{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05)}
+.modal-pb-ws-label{font-size:12px;color:var(--muted)}
+.modal-pb-ws-val{font-size:15px;font-weight:500}
+
+/* ── Modal ─────────────────────────────────────────────── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.72);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;opacity:0;transition:opacity .2s}
+.modal-overlay.modal-visible{opacity:1}
+.modal-box{background:#1a1a20;border:1px solid rgba(255,255,255,0.12);border-radius:18px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;transform:translateY(12px);transition:transform .25s;box-shadow:0 24px 64px rgba(0,0,0,0.6)}
+.modal-overlay.modal-visible .modal-box{transform:translateY(0)}
+.modal-header{display:flex;align-items:center;gap:14px;padding:22px 22px 16px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.modal-flag{font-size:42px;line-height:1;flex-shrink:0}
+.modal-title-block{flex:1;min-width:0}
+.modal-country-name{font-family:'DM Serif Display',serif;font-size:22px;font-weight:400;color:var(--text);line-height:1.2}
+.modal-iso{font-size:12px;color:var(--muted);margin-top:3px;letter-spacing:.04em}
+.modal-score-block{text-align:right;flex-shrink:0}
+.modal-score{font-family:'DM Serif Display',serif;font-size:32px;color:var(--accent);line-height:1}
+.modal-score-lbl{font-size:10px;color:var(--hint);margin-top:1px}
+.modal-close{background:transparent;border:1px solid rgba(255,255,255,0.1);color:var(--muted);border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,color .15s}
+.modal-close:hover{background:rgba(255,255,255,0.08);color:var(--text)}
+.modal-status{font-size:12px;font-weight:500;padding:9px 22px;letter-spacing:.02em}
+.status-pass{background:rgba(76,175,125,0.12);color:#5fcc92;border-bottom:1px solid rgba(76,175,125,0.15)}
+.status-fail{background:rgba(217,91,91,0.1);color:#e06868;border-bottom:1px solid rgba(217,91,91,0.12)}
+.modal-grid{padding:16px 22px;display:flex;flex-direction:column;gap:0}
+.modal-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.modal-row:last-child{border-bottom:none}
+.modal-row-label{font-size:12px;color:var(--muted);flex:1;min-width:0}
+.modal-row-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.modal-row-val{font-size:13px;font-weight:500;color:var(--text);min-width:90px;text-align:right;white-space:nowrap}
+.m-bar-track{width:80px;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;flex-shrink:0}
+.m-bar-fill{height:100%;border-radius:3px;transition:width .4s}
+.m-bar-fill.ok{background:#4caf7d}
+.m-bar-fill.warn{background:#e09a4a}
+.m-bar-fill.bad{background:#d95b5b}
+.modal-footer{padding:14px 22px 20px;border-top:1px solid rgba(255,255,255,0.07)}
+.modal-footer-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.modal-footer-sources{font-size:10px;color:var(--hint);font-style:italic;line-height:1.5}
+
+.modal-players{padding:14px 22px 16px;border-top:1px solid rgba(255,255,255,0.07)}
+.modal-players-title{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--hint);margin-bottom:10px}
+.modal-players-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.player-pill{font-size:12px;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--muted)}
+.modal-eb-bar{margin-top:4px}
+.modal-eb-label{display:flex;justify-content:space-between;font-size:10px;color:var(--hint);margin-bottom:5px}
+.modal-eb-pct{font-size:11px;color:var(--muted);margin-top:6px;text-align:center}
+</style>
+</head>
+<body>
+<div class="shell">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="wordmark">Ounass Expansion</div>
+    <div class="sidebar-title">Filtration pipeline</div>
+    <div style="font-size:10px;color:var(--hint);margin-bottom:14px">Drag ⠿ to reorder · toggle to enable · click name to configure</div>
+    <div class="steps-list" id="steps-list"></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="page-title">Market <em>expansion</em> screener</div>
+    <div class="page-sub">Luxury fashion ecommerce · Next market beyond GCC · All data from IMF, World Bank, Capgemini, Euromonitor 2024</div>
+
+    <div class="stats-bar" id="stats-bar">
+      <div class="stat-card"><div class="stat-label">Shortlisted</div><div class="stat-val" id="s-count">—</div></div>
+      <div class="stat-card"><div class="stat-label">Avg luxury mkt</div><div class="stat-val" id="s-lux">—</div></div>
+      <div class="stat-card"><div class="stat-label">Avg HNWI</div><div class="stat-val" id="s-hnwi">—</div></div>
+      <div class="stat-card"><div class="stat-label">Avg LPI score</div><div class="stat-val" id="s-lpi">—</div></div>
+    </div>
+
+    <div class="funnel-section">
+      <div class="section-label">Funnel</div>
+      <div class="funnel" id="funnel"></div>
+    </div>
+
+    <div class="section-label">Shortlisted countries <span style="color:var(--hint);font-weight:400;text-transform:none;letter-spacing:0">· click a country for deep analysis</span></div>
+    <div class="country-grid" id="country-grid"></div>
+    <div class="click-hint">Scores are composite: luxury market size + HNWI density + LPI + ecomm penetration + trade openness</div>
+  </div>
+</div>
+
+<script>
+const ALL = [
+  // East Asia
+  {n:'China',f:'🇨🇳',iso:'CHN',eb:92,players:['Tmall Luxury Pavilion', 'JD Luxury', 'Secoo', 'Farfetch China'],flyH:9,gdp:19374,gdpC:13720,lpi:3.68,lux:87,ecomm:52,conf:false,eu:false,open:58,hnwi:6235,en:false,pop:1410},
+  {n:'Japan',f:'🇯🇵',iso:'JPN',eb:78,players:['Farfetch JP', 'Luisaviaroma', 'Net-a-Porter', 'Magaseek'],flyH:10,gdp:4409,gdpC:35390,lpi:4.03,lux:28,ecomm:38,conf:false,eu:false,open:72,hnwi:3321,en:false,pop:124},
+  {n:'South Korea',f:'🇰🇷',iso:'KOR',eb:72,players:['Musinsa', 'W Concept', 'Farfetch Korea', 'SSF Shop'],flyH:9,gdp:1709,gdpC:33190,lpi:3.83,lux:12,ecomm:50,conf:false,eu:false,open:64,hnwi:1100,en:false,pop:51},
+  {n:'Taiwan',f:'🇹🇼',iso:'TWN',eb:65,players:['Farfetch', 'Net-a-Porter', 'Luisaviaroma', 'Shopee Luxury'],flyH:9,gdp:751,gdpC:32340,lpi:3.73,lux:6,ecomm:42,conf:false,eu:false,open:70,hnwi:510,en:false,pop:23},
+  {n:'Hong Kong',f:'🇭🇰',iso:'HKG',eb:82,players:['Farfetch HK', 'Net-a-Porter HK', 'Lane Crawford', 'Mytheresa'],flyH:8,gdp:369,gdpC:49600,lpi:4.02,lux:10,ecomm:38,conf:false,eu:false,open:92,hnwi:520,en:true,pop:7.5},
+  {n:'Mongolia',f:'🇲🇳',iso:'MNG',eb:20,players:['None significant'],flyH:8,gdp:20,gdpC:6090,lpi:2.49,lux:0.1,ecomm:8,conf:false,eu:false,open:44,hnwi:1,en:false,pop:3.4},
+  {n:'North Korea',f:'🇰🇵',iso:'PRK',eb:5,players:['No open market'],flyH:10,gdp:18,gdpC:720,lpi:1.50,lux:0,ecomm:0,conf:true,eu:false,open:5,hnwi:0,en:false,pop:26},
+  // South Asia
+  {n:'India',f:'🇮🇳',iso:'IND',eb:38,players:['Myntra Luxe', 'Tata CLiQ Luxury', 'Ajio Luxe', "Pernia's Pop-Up"],flyH:3,gdp:3937,gdpC:2730,lpi:3.18,lux:8,ecomm:22,conf:false,eu:false,open:56,hnwi:326,en:true,pop:1428},
+  {n:'Pakistan',f:'🇵🇰',iso:'PAK',eb:18,players:['Daraz', 'Sefam'],flyH:3,gdp:338,gdpC:1470,lpi:2.57,lux:0.5,ecomm:8,conf:true,eu:false,open:32,hnwi:4,en:false,pop:231},
+  {n:'Bangladesh',f:'🇧🇩',iso:'BGD',eb:12,players:['Daraz', 'Shajgoj'],flyH:4,gdp:460,gdpC:2720,lpi:2.64,lux:0.3,ecomm:10,conf:false,eu:false,open:38,hnwi:2,en:false,pop:170},
+  {n:'Sri Lanka',f:'🇱🇰',iso:'LKA',eb:22,players:['Kapruka', 'Myntra cross-border'],flyH:4,gdp:84,gdpC:3780,lpi:2.56,lux:0.2,ecomm:9,conf:false,eu:false,open:42,hnwi:3,en:true,pop:22},
+  {n:'Nepal',f:'🇳🇵',iso:'NPL',eb:10,players:['Daraz', 'SastoDeal'],flyH:4,gdp:40,gdpC:1340,lpi:2.40,lux:0.05,ecomm:6,conf:false,eu:false,open:34,hnwi:0.5,en:false,pop:30},
+  {n:'Bhutan',f:'🇧🇹',iso:'BTN',eb:8,players:['Cross-border only'],flyH:4,gdp:3,gdpC:3560,lpi:2.29,lux:0.01,ecomm:5,conf:false,eu:false,open:38,hnwi:0.1,en:true,pop:0.8},
+  {n:'Maldives',f:'🇲🇻',iso:'MDV',eb:30,players:['Amazon cross-border', 'Farfetch'],flyH:4,gdp:7,gdpC:17660,lpi:2.50,lux:0.1,ecomm:18,conf:false,eu:false,open:60,hnwi:1,en:true,pop:0.5},
+  {n:'Afghanistan',f:'🇦🇫',iso:'AFG',eb:3,players:['No open market'],flyH:3,gdp:14,gdpC:360,lpi:1.95,lux:0,ecomm:2,conf:true,eu:false,open:12,hnwi:0,en:false,pop:40},
+  // Southeast Asia
+  {n:'Indonesia',f:'🇮🇩',iso:'IDN',eb:52,players:['Tokopedia Fashion', 'Shopee', 'Zalora', 'Farfetch'],flyH:7,gdp:1417,gdpC:5140,lpi:3.15,lux:5,ecomm:30,conf:false,eu:false,open:54,hnwi:197,en:false,pop:277},
+  {n:'Thailand',f:'🇹🇭',iso:'THA',eb:58,players:['Central Online', 'Shopee Luxury', 'Lazada', 'Farfetch'],flyH:6,gdp:574,gdpC:8180,lpi:3.41,lux:4,ecomm:35,conf:false,eu:false,open:55,hnwi:97,en:false,pop:71},
+  {n:'Vietnam',f:'🇻🇳',iso:'VNM',eb:42,players:['Tiki', 'Shopee', 'Lazada', 'Farfetch'],flyH:7,gdp:449,gdpC:4480,lpi:3.27,lux:2,ecomm:27,conf:false,eu:false,open:51,hnwi:19,en:false,pop:98},
+  {n:'Malaysia',f:'🇲🇾',iso:'MYS',eb:55,players:['Zalora', 'Shopee', 'Lazada', 'Net-a-Porter'],flyH:7,gdp:430,gdpC:13120,lpi:3.32,lux:3,ecomm:42,conf:false,eu:false,open:66,hnwi:79,en:true,pop:33},
+  {n:'Philippines',f:'🇵🇭',iso:'PHL',eb:45,players:['Zalora', 'Shopee', 'Lazada', 'Farfetch'],flyH:8,gdp:435,gdpC:3850,lpi:2.90,lux:2,ecomm:20,conf:false,eu:false,open:46,hnwi:18,en:true,pop:113},
+  {n:'Singapore',f:'🇸🇬',iso:'SGP',eb:75,players:['Farfetch SG', 'Net-a-Porter', 'Mytheresa', 'Club21'],flyH:7,gdp:497,gdpC:82790,lpi:4.00,lux:5,ecomm:55,conf:false,eu:false,open:88,hnwi:268,en:true,pop:6},
+  {n:'Myanmar',f:'🇲🇲',iso:'MMR',eb:15,players:['Shopee', 'Wave'],flyH:6,gdp:65,gdpC:1210,lpi:2.30,lux:0.1,ecomm:8,conf:true,eu:false,open:28,hnwi:1,en:false,pop:54},
+  {n:'Cambodia',f:'🇰🇭',iso:'KHM',eb:14,players:['Shopee', 'Amazon cross-border'],flyH:6,gdp:31,gdpC:1830,lpi:2.58,lux:0.1,ecomm:9,conf:false,eu:false,open:42,hnwi:1,en:false,pop:17},
+  {n:'Laos',f:'🇱🇦',iso:'LAO',eb:10,players:['Cross-border only'],flyH:6,gdp:15,gdpC:2050,lpi:2.39,lux:0.05,ecomm:7,conf:false,eu:false,open:36,hnwi:0.5,en:false,pop:7.5},
+  {n:'Brunei',f:'🇧🇳',iso:'BRN',eb:32,players:['Shopee', 'Lazada'],flyH:7,gdp:16,gdpC:37060,lpi:2.94,lux:0.2,ecomm:22,conf:false,eu:false,open:62,hnwi:4,en:true,pop:0.4},
+  {n:'Timor-Leste',f:'🇹🇱',iso:'TLS',eb:5,players:['No significant players'],flyH:9,gdp:2,gdpC:1410,lpi:1.89,lux:0,ecomm:3,conf:false,eu:false,open:28,hnwi:0,en:true,pop:1.3},
+  // Central Asia
+  {n:'Kazakhstan',f:'🇰🇿',iso:'KAZ',eb:28,players:['Wildberries', 'Lamoda', 'Kaspi'],flyH:4,gdp:261,gdpC:13010,lpi:2.81,lux:0.8,ecomm:15,conf:false,eu:false,open:50,hnwi:8,en:false,pop:19},
+  {n:'Uzbekistan',f:'🇺🇿',iso:'UZB',eb:18,players:['Uzum', 'Wildberries'],flyH:4,gdp:90,gdpC:2560,lpi:2.63,lux:0.2,ecomm:10,conf:false,eu:false,open:38,hnwi:2,en:false,pop:36},
+  {n:'Azerbaijan',f:'🇦🇿',iso:'AZE',eb:22,players:['Umico', 'Trendyol'],flyH:3,gdp:72,gdpC:7020,lpi:2.60,lux:0.3,ecomm:12,conf:false,eu:false,open:44,hnwi:4,en:false,pop:10},
+  {n:'Turkmenistan',f:'🇹🇲',iso:'TKM',eb:8,players:['No significant players'],flyH:3,gdp:59,gdpC:9040,lpi:2.18,lux:0.1,ecomm:4,conf:false,eu:false,open:20,hnwi:1,en:false,pop:6},
+  {n:'Kyrgyzstan',f:'🇰🇬',iso:'KGZ',eb:12,players:['Wildberries', 'Lamoda'],flyH:5,gdp:13,gdpC:1980,lpi:2.31,lux:0.05,ecomm:7,conf:false,eu:false,open:34,hnwi:0.3,en:false,pop:7},
+  {n:'Tajikistan',f:'🇹🇯',iso:'TJK',eb:10,players:['Wildberries'],flyH:4,gdp:11,gdpC:1100,lpi:2.36,lux:0.02,ecomm:5,conf:false,eu:false,open:28,hnwi:0.2,en:false,pop:10},
+  // Middle East
+  {n:'United Arab Emirates',f:'🇦🇪',iso:'ARE',eb:68,players:['Ounass', 'Sivvi', 'Farfetch MENA', 'Namshi'],flyH:0,gcc:true,gdp:509,gdpC:44070,lpi:4.02,lux:8,ecomm:48,conf:false,eu:false,open:78,hnwi:380,en:true,pop:10},
+  {n:'Saudi Arabia',f:'🇸🇦',iso:'SAU',eb:62,players:['Farfetch MENA', 'Net-a-Porter', 'Namshi', 'Sivvi'],gcc:true,flyH:2,gdp:1062,gdpC:29830,lpi:3.35,lux:6,ecomm:31,conf:false,eu:false,open:62,hnwi:93,en:false,pop:36},
+  {n:'Turkey',f:'🇹🇷',iso:'TUR',eb:55,players:['Trendyol Luxury', 'Farfetch Turkey', 'Morhipo'],flyH:4,gdp:1108,gdpC:13050,lpi:3.42,lux:5,ecomm:28,conf:false,eu:false,open:44,hnwi:102,en:false,pop:85},
+  {n:'Qatar',f:'🇶🇦',iso:'QAT',eb:50,players:['Farfetch MENA', 'Net-a-Porter', 'Ounass'],gcc:true,flyH:1,gdp:225,gdpC:82720,lpi:3.52,lux:3,ecomm:38,conf:false,eu:false,open:68,hnwi:72,en:false,pop:3},
+  {n:'Kuwait',f:'🇰🇼',iso:'KWT',eb:52,players:['Farfetch MENA', 'Net-a-Porter', 'Ounass', 'Boutiqaat'],gcc:true,flyH:1,gdp:162,gdpC:38200,lpi:3.05,lux:2,ecomm:28,conf:false,eu:false,open:55,hnwi:58,en:false,pop:4},
+  {n:'Bahrain',f:'🇧🇭',iso:'BHR',eb:48,players:['Farfetch MENA', 'Ounass', 'Boutiqaat'],gcc:true,flyH:1,gdp:44,gdpC:28200,lpi:3.28,lux:1,ecomm:35,conf:false,eu:false,open:70,hnwi:20,en:false,pop:1.5},
+  {n:'Oman',f:'🇴🇲',iso:'OMN',eb:45,players:['Farfetch MENA', 'Ounass', 'Sivvi'],gcc:true,flyH:1,gdp:105,gdpC:22370,lpi:3.20,lux:1.5,ecomm:22,conf:false,eu:false,open:58,hnwi:22,en:false,pop:4.5},
+  {n:'Jordan',f:'🇯🇴',iso:'JOR',eb:28,players:['Namshi', 'Farfetch', 'Zara Online'],flyH:3,gdp:48,gdpC:4380,lpi:2.96,lux:0.5,ecomm:18,conf:false,eu:false,open:50,hnwi:3,en:false,pop:11},
+  {n:'Lebanon',f:'🇱🇧',iso:'LBN',eb:25,players:['Farfetch', 'Namshi'],flyH:3,gdp:23,gdpC:3560,lpi:2.48,lux:0.3,ecomm:14,conf:true,eu:false,open:34,hnwi:2,en:true,pop:6.8},
+  {n:'Israel',f:'🇮🇱',iso:'ISR',eb:58,players:['Farfetch Israel', 'ASOS', 'Net-a-Porter'],flyH:3,gdp:509,gdpC:54910,lpi:3.58,lux:4,ecomm:45,conf:true,eu:false,open:72,hnwi:228,en:true,pop:9},
+  {n:'Iran',f:'🇮🇷',iso:'IRN',eb:5,players:['Digikala domestic'],flyH:2,gdp:413,gdpC:4720,lpi:2.65,lux:0.5,ecomm:12,conf:true,eu:false,open:22,hnwi:4,en:false,pop:88},
+  {n:'Iraq',f:'🇮🇶',iso:'IRQ',eb:8,players:['OpenSooq cross-border'],flyH:2,gdp:268,gdpC:6300,lpi:2.18,lux:0.5,ecomm:8,conf:true,eu:false,open:20,hnwi:2,en:false,pop:42},
+  {n:'Syria',f:'🇸🇾',iso:'SYR',eb:3,players:['No open market'],flyH:3,gdp:60,gdpC:2800,lpi:1.90,lux:0,ecomm:5,conf:true,eu:false,open:15,hnwi:0,en:false,pop:22},
+  {n:'Yemen',f:'🇾🇪',iso:'YEM',eb:3,players:['No open market'],flyH:2,gdp:21,gdpC:660,lpi:1.85,lux:0,ecomm:3,conf:true,eu:false,open:12,hnwi:0,en:false,pop:33},
+  {n:'Palestine',f:'🇵🇸',iso:'PSE',eb:5,players:['Cross-border only'],flyH:3,gdp:19,gdpC:3790,lpi:1.80,lux:0,ecomm:6,conf:true,eu:false,open:18,hnwi:0.2,en:false,pop:5.4},
+  // North Africa
+  {n:'Egypt',f:'🇪🇬',iso:'EGY',eb:32,players:['Namshi Egypt', 'Noon Fashion', 'Jumia Fashion'],flyH:3,gdp:395,gdpC:3630,lpi:2.82,lux:2,ecomm:12,conf:false,eu:false,open:48,hnwi:22,en:false,pop:110},
+  {n:'Morocco',f:'🇲🇦',iso:'MAR',eb:28,players:['Jumia Fashion', 'Farfetch', 'ASOS cross-border'],flyH:7,gdp:141,gdpC:3700,lpi:2.90,lux:1,ecomm:16,conf:false,eu:false,open:49,hnwi:8,en:false,pop:38},
+  {n:'Algeria',f:'🇩🇿',iso:'DZA',eb:15,players:['Jumia', 'Cross-border'],flyH:6,gdp:239,gdpC:5330,lpi:2.63,lux:0.5,ecomm:9,conf:false,eu:false,open:32,hnwi:5,en:false,pop:45},
+  {n:'Tunisia',f:'🇹🇳',iso:'TUN',eb:20,players:['Jumia', 'Cross-border'],flyH:5,gdp:47,gdpC:3850,lpi:2.89,lux:0.2,ecomm:11,conf:false,eu:false,open:42,hnwi:2,en:false,pop:12},
+  {n:'Libya',f:'🇱🇾',iso:'LBY',eb:5,players:['No significant players'],flyH:4,gdp:46,gdpC:6700,lpi:2.10,lux:0,ecomm:6,conf:true,eu:false,open:18,hnwi:1,en:false,pop:7},
+  {n:'Sudan',f:'🇸🇩',iso:'SDN',eb:5,players:['No significant players'],flyH:3,gdp:97,gdpC:2130,lpi:1.85,lux:0,ecomm:4,conf:true,eu:false,open:18,hnwi:0,en:false,pop:46},
+  // Sub-Saharan Africa
+  {n:'Nigeria',f:'🇳🇬',iso:'NGA',eb:22,players:['Jumia Fashion', 'Konga Fashion', 'ASOS cross-border'],flyH:6,gdp:373,gdpC:1640,lpi:2.53,lux:1,ecomm:10,conf:false,eu:false,open:32,hnwi:7,en:true,pop:223},
+  {n:'South Africa',f:'🇿🇦',iso:'ZAF',eb:48,players:['Zando', 'Takealot Fashion', 'ASOS', 'Farfetch SA'],flyH:9,gdp:377,gdpC:6220,lpi:3.38,lux:2,ecomm:18,conf:false,eu:false,open:42,hnwi:39,en:true,pop:61},
+  {n:'Ethiopia',f:'🇪🇹',iso:'ETH',eb:8,players:['Jumia'],flyH:4,gdp:156,gdpC:1260,lpi:2.56,lux:0.1,ecomm:5,conf:true,eu:false,open:28,hnwi:1,en:false,pop:124},
+  {n:'Kenya',f:'🇰🇪',iso:'KEN',eb:18,players:['Jumia', 'Kilimall', 'ASOS cross-border'],flyH:5,gdp:118,gdpC:2190,lpi:2.81,lux:0.5,ecomm:14,conf:false,eu:false,open:44,hnwi:4,en:true,pop:55},
+  {n:'Tanzania',f:'🇹🇿',iso:'TZA',eb:12,players:['Jumia', 'Cross-border'],flyH:5,gdp:79,gdpC:1250,lpi:2.60,lux:0.1,ecomm:7,conf:false,eu:false,open:36,hnwi:1,en:true,pop:63},
+  {n:'Ghana',f:'🇬🇭',iso:'GHA',eb:15,players:['Jumia', 'Tonaton'],flyH:7,gdp:77,gdpC:2350,lpi:2.63,lux:0.2,ecomm:10,conf:false,eu:false,open:44,hnwi:2,en:true,pop:33},
+  {n:'Ivory Coast',f:'🇨🇮',iso:'CIV',eb:12,players:['Jumia', 'Cross-border'],flyH:7,gdp:78,gdpC:2890,lpi:2.74,lux:0.2,ecomm:8,conf:false,eu:false,open:42,hnwi:2,en:false,pop:27},
+  {n:'Cameroon',f:'🇨🇲',iso:'CMR',eb:10,players:['Jumia'],flyH:6,gdp:47,gdpC:1710,lpi:2.49,lux:0.1,ecomm:6,conf:false,eu:false,open:34,hnwi:0.5,en:true,pop:28},
+  {n:'Angola',f:'🇦🇴',iso:'AGO',eb:10,players:['Jumia', 'Cross-border'],flyH:8,gdp:92,gdpC:2600,lpi:2.24,lux:0.2,ecomm:7,conf:false,eu:false,open:28,hnwi:2,en:false,pop:35},
+  {n:'Mozambique',f:'🇲🇿',iso:'MOZ',eb:8,players:['Cross-border only'],flyH:7,gdp:20,gdpC:620,lpi:2.43,lux:0.03,ecomm:5,conf:false,eu:false,open:30,hnwi:0.2,en:false,pop:33},
+  {n:'Zambia',f:'🇿🇲',iso:'ZMB',eb:10,players:['Cross-border only'],flyH:7,gdp:29,gdpC:1590,lpi:2.47,lux:0.05,ecomm:6,conf:false,eu:false,open:34,hnwi:0.5,en:true,pop:19},
+  {n:'Zimbabwe',f:'🇿🇼',iso:'ZWE',eb:8,players:['Cross-border only'],flyH:8,gdp:26,gdpC:1620,lpi:2.29,lux:0.05,ecomm:7,conf:false,eu:false,open:28,hnwi:0.3,en:true,pop:16},
+  {n:'Uganda',f:'🇺🇬',iso:'UGA',eb:10,players:['Jumia', 'Cross-border'],flyH:5,gdp:49,gdpC:1010,lpi:2.62,lux:0.05,ecomm:6,conf:false,eu:false,open:36,hnwi:0.5,en:true,pop:48},
+  {n:'Senegal',f:'🇸🇳',iso:'SEN',eb:12,players:['Jumia', 'Cross-border'],flyH:8,gdp:31,gdpC:1770,lpi:2.68,lux:0.05,ecomm:7,conf:false,eu:false,open:40,hnwi:0.5,en:false,pop:17},
+  {n:'Rwanda',f:'🇷🇼',iso:'RWA',eb:10,players:['Jumia', 'Cross-border'],flyH:5,gdp:14,gdpC:1010,lpi:2.83,lux:0.03,ecomm:8,conf:false,eu:false,open:48,hnwi:0.2,en:true,pop:14},
+  {n:'Botswana',f:'🇧🇼',iso:'BWA',eb:15,players:['Cross-border only'],flyH:8,gdp:19,gdpC:7990,lpi:2.72,lux:0.1,ecomm:9,conf:false,eu:false,open:50,hnwi:1,en:true,pop:2.6},
+  {n:'Mauritius',f:'🇲🇺',iso:'MUS',eb:28,players:['Net-a-Porter', 'Farfetch', 'ASOS'],flyH:6,gdp:14,gdpC:11150,lpi:3.09,lux:0.2,ecomm:20,conf:false,eu:false,open:64,hnwi:3,en:true,pop:1.3},
+  {n:'Namibia',f:'🇳🇦',iso:'NAM',eb:12,players:['Cross-border only'],flyH:9,gdp:13,gdpC:5020,lpi:2.65,lux:0.05,ecomm:8,conf:false,eu:false,open:42,hnwi:0.5,en:true,pop:2.6},
+  {n:'Congo DR',f:'🇨🇩',iso:'COD',eb:8,players:['Jumia'],flyH:7,gdp:65,gdpC:660,lpi:2.02,lux:0.05,ecomm:4,conf:true,eu:false,open:22,hnwi:0.5,en:false,pop:99},
+  {n:'Mali',f:'🇲🇱',iso:'MLI',eb:5,players:['Jumia'],flyH:7,gdp:19,gdpC:900,lpi:2.23,lux:0.02,ecomm:4,conf:true,eu:false,open:24,hnwi:0.1,en:false,pop:22},
+  {n:'Burkina Faso',f:'🇧🇫',iso:'BFA',eb:5,players:['Jumia'],flyH:7,gdp:19,gdpC:870,lpi:2.28,lux:0.02,ecomm:4,conf:true,eu:false,open:24,hnwi:0.1,en:false,pop:22},
+  {n:'Niger',f:'🇳🇪',iso:'NER',eb:4,players:['No significant players'],flyH:6,gdp:14,gdpC:580,lpi:2.13,lux:0.01,ecomm:3,conf:true,eu:false,open:20,hnwi:0.1,en:false,pop:25},
+  {n:'Chad',f:'🇹🇩',iso:'TCD',eb:4,players:['No significant players'],flyH:5,gdp:12,gdpC:700,lpi:1.96,lux:0.01,ecomm:3,conf:true,eu:false,open:18,hnwi:0.1,en:false,pop:17},
+  {n:'Somalia',f:'🇸🇴',iso:'SOM',eb:2,players:['No open market'],flyH:4,gdp:10,gdpC:630,lpi:1.80,lux:0,ecomm:2,conf:true,eu:false,open:10,hnwi:0,en:false,pop:17},
+  {n:'Eritrea',f:'🇪🇷',iso:'ERI',eb:2,players:['No open market'],flyH:3,gdp:2,gdpC:580,lpi:1.85,lux:0,ecomm:1,conf:true,eu:false,open:10,hnwi:0,en:false,pop:3.5},
+  {n:'South Sudan',f:'🇸🇸',iso:'SSD',eb:3,players:['No open market'],flyH:4,gdp:5,gdpC:440,lpi:1.80,lux:0,ecomm:2,conf:true,eu:false,open:10,hnwi:0,en:true,pop:11},
+  {n:'Madagascar',f:'🇲🇬',iso:'MDG',eb:8,players:['Cross-border only'],flyH:7,gdp:16,gdpC:540,lpi:2.25,lux:0.02,ecomm:4,conf:false,eu:false,open:28,hnwi:0.1,en:false,pop:28},
+  {n:'Malawi',f:'🇲🇼',iso:'MWI',eb:6,players:['Cross-border only'],flyH:7,gdp:14,gdpC:670,lpi:2.27,lux:0.02,ecomm:5,conf:false,eu:false,open:30,hnwi:0.1,en:true,pop:20},
+  // Western Europe
+  {n:'Germany',f:'🇩🇪',iso:'DEU',eb:88,players:['Zalando Luxury', 'Mytheresa HQ', 'Net-a-Porter', 'Farfetch DE'],flyH:7,gdp:4456,gdpC:52820,lpi:4.20,lux:21,ecomm:60,conf:false,eu:true,open:79,hnwi:2946,en:false,pop:84},
+  {n:'France',f:'🇫🇷',iso:'FRA',eb:90,players:['24S by LVMH', 'Net-a-Porter', 'Farfetch FR', 'Monnier Paris'],flyH:7,gdp:3030,gdpC:46480,lpi:3.87,lux:18,ecomm:58,conf:false,eu:true,open:76,hnwi:2773,en:false,pop:68},
+  {n:'United Kingdom',f:'🇬🇧',iso:'GBR',eb:92,players:['Farfetch HQ', 'Net-a-Porter HQ', 'Matches HQ', 'SSENSE', 'Browns'],flyH:7,gdp:3070,gdpC:46130,lpi:3.99,lux:20,ecomm:62,conf:false,eu:true,open:80,hnwi:2984,en:true,pop:67},
+  {n:'Italy',f:'🇮🇹',iso:'ITA',eb:85,players:['Mytheresa IT', 'Luisaviaroma HQ', 'Net-a-Porter', 'Farfetch IT'],flyH:6,gdp:2170,gdpC:38200,lpi:3.81,lux:14,ecomm:45,conf:false,eu:true,open:70,hnwi:1486,en:false,pop:60},
+  {n:'Spain',f:'🇪🇸',iso:'ESP',eb:78,players:['El Corte Ingles Online', 'Farfetch ES', 'Net-a-Porter'],flyH:7,gdp:1580,gdpC:34090,lpi:3.83,lux:9,ecomm:50,conf:false,eu:true,open:72,hnwi:916,en:false,pop:47},
+  {n:'Netherlands',f:'🇳🇱',iso:'NLD',eb:82,players:['Zalando NL', 'Net-a-Porter', 'Farfetch NL', 'de Bijenkorf'],flyH:7,gdp:1092,gdpC:62860,lpi:4.02,lux:6,ecomm:71,conf:false,eu:true,open:84,hnwi:758,en:true,pop:17},
+  {n:'Switzerland',f:'🇨🇭',iso:'CHE',eb:80,players:['Farfetch CH', 'Net-a-Porter', 'Mytheresa', 'Globus Online'],flyH:7,gdp:869,gdpC:97830,lpi:4.10,lux:8,ecomm:65,conf:false,eu:true,open:87,hnwi:903,en:true,pop:9},
+  {n:'Belgium',f:'🇧🇪',iso:'BEL',eb:78,players:['Zalando BE', 'Net-a-Porter', 'Farfetch BE'],flyH:7,gdp:620,gdpC:52920,lpi:3.92,lux:5,ecomm:58,conf:false,eu:true,open:78,hnwi:393,en:true,pop:12},
+  {n:'Sweden',f:'🇸🇪',iso:'SWE',eb:80,players:['Zalando SE', 'Net-a-Porter', 'Farfetch SE', 'NK Online'],flyH:7,gdp:584,gdpC:56120,lpi:4.05,lux:5,ecomm:68,conf:false,eu:true,open:83,hnwi:505,en:true,pop:10},
+  {n:'Norway',f:'🇳🇴',iso:'NOR',eb:75,players:['Net-a-Porter NO', 'Zalando NO', 'Farfetch NO'],flyH:8,gdp:546,gdpC:99790,lpi:3.98,lux:4,ecomm:65,conf:false,eu:true,open:86,hnwi:413,en:true,pop:5.5},
+  {n:'Austria',f:'🇦🇹',iso:'AUT',eb:78,players:['Zalando AT', 'Net-a-Porter', 'Mytheresa'],flyH:6,gdp:519,gdpC:57390,lpi:4.08,lux:4,ecomm:60,conf:false,eu:true,open:79,hnwi:445,en:false,pop:9},
+  {n:'Denmark',f:'🇩🇰',iso:'DNK',eb:76,players:['Zalando DK', 'Net-a-Porter', 'Farfetch DK'],flyH:7,gdp:406,gdpC:67720,lpi:3.93,lux:3,ecomm:70,conf:false,eu:true,open:85,hnwi:337,en:true,pop:6},
+  {n:'Finland',f:'🇫🇮',iso:'FIN',eb:72,players:['Zalando FI', 'Net-a-Porter', 'Farfetch FI'],flyH:7,gdp:300,gdpC:54280,lpi:3.97,lux:2,ecomm:64,conf:false,eu:true,open:83,hnwi:199,en:true,pop:5.5},
+  {n:'Portugal',f:'🇵🇹',iso:'PRT',eb:68,players:['Farfetch PT', 'Zalando PT', 'Net-a-Porter'],flyH:8,gdp:287,gdpC:27770,lpi:3.73,lux:2,ecomm:52,conf:false,eu:true,open:72,hnwi:141,en:false,pop:10},
+  {n:'Greece',f:'🇬🇷',iso:'GRC',eb:62,players:['Farfetch GR', 'Net-a-Porter', 'ASOS'],flyH:4,gdp:241,gdpC:22810,lpi:3.41,lux:2,ecomm:42,conf:false,eu:true,open:60,hnwi:107,en:false,pop:11},
+  {n:'Ireland',f:'🇮🇪',iso:'IRL',eb:75,players:['Farfetch IE', 'Net-a-Porter', 'Brown Thomas Online'],flyH:8,gdp:545,gdpC:103530,lpi:3.93,lux:3,ecomm:66,conf:false,eu:true,open:86,hnwi:310,en:true,pop:5.1},
+  {n:'Luxembourg',f:'🇱🇺',iso:'LUX',eb:80,players:['Net-a-Porter', 'Mytheresa', 'Farfetch'],flyH:7,gdp:86,gdpC:129720,lpi:3.95,lux:2,ecomm:62,conf:false,eu:true,open:90,hnwi:62,en:true,pop:0.7},
+  {n:'Iceland',f:'🇮🇸',iso:'ISL',eb:65,players:['Farfetch', 'Net-a-Porter cross-border'],flyH:9,gdp:31,gdpC:83880,lpi:3.82,lux:0.3,ecomm:60,conf:false,eu:true,open:84,hnwi:20,en:true,pop:0.4},
+  {n:'Cyprus',f:'🇨🇾',iso:'CYP',eb:52,players:['Farfetch CY', 'Net-a-Porter'],flyH:3,gdp:32,gdpC:35260,lpi:3.21,lux:0.3,ecomm:48,conf:false,eu:true,open:68,hnwi:18,en:true,pop:1.2},
+  {n:'Malta',f:'🇲🇹',iso:'MLT',eb:50,players:['Farfetch', 'Net-a-Porter'],flyH:4,gdp:20,gdpC:39890,lpi:3.30,lux:0.2,ecomm:55,conf:false,eu:true,open:76,hnwi:11,en:true,pop:0.5},
+  // Eastern Europe
+  {n:'Poland',f:'🇵🇱',iso:'POL',eb:65,players:['Zalando PL', 'Farfetch PL', 'Net-a-Porter'],flyH:6,gdp:802,gdpC:22030,lpi:3.68,lux:5,ecomm:55,conf:false,eu:true,open:68,hnwi:431,en:false,pop:38},
+  {n:'Czech Republic',f:'🇨🇿',iso:'CZE',eb:62,players:['Zalando CZ', 'Farfetch', 'ASOS'],flyH:6,gdp:330,gdpC:31260,lpi:3.72,lux:2,ecomm:52,conf:false,eu:true,open:72,hnwi:148,en:false,pop:11},
+  {n:'Romania',f:'🇷🇴',iso:'ROU',eb:55,players:['Zalando RO', 'eMAG Fashion', 'Farfetch'],flyH:5,gdp:348,gdpC:18270,lpi:3.12,lux:2,ecomm:40,conf:false,eu:true,open:58,hnwi:91,en:false,pop:19},
+  {n:'Hungary',f:'🇭🇺',iso:'HUN',eb:58,players:['Zalando HU', 'Farfetch', 'eMAG'],flyH:6,gdp:212,gdpC:22200,lpi:3.67,lux:1,ecomm:48,conf:false,eu:true,open:62,hnwi:89,en:false,pop:10},
+  {n:'Slovakia',f:'🇸🇰',iso:'SVK',eb:56,players:['Zalando SK', 'Farfetch'],flyH:6,gdp:133,gdpC:24360,lpi:3.54,lux:0.8,ecomm:46,conf:false,eu:true,open:66,hnwi:46,en:false,pop:5.5},
+  {n:'Bulgaria',f:'🇧🇬',iso:'BGR',eb:50,players:['Zalando BG', 'Farfetch'],flyH:4,gdp:103,gdpC:15180,lpi:3.20,lux:0.5,ecomm:38,conf:false,eu:true,open:58,hnwi:30,en:false,pop:6.5},
+  {n:'Croatia',f:'🇭🇷',iso:'HRV',eb:52,players:['Zalando HR', 'Farfetch'],flyH:5,gdp:82,gdpC:20440,lpi:3.21,lux:0.5,ecomm:40,conf:false,eu:true,open:62,hnwi:34,en:false,pop:4},
+  {n:'Slovenia',f:'🇸🇮',iso:'SVN',eb:55,players:['Zalando SI', 'Net-a-Porter'],flyH:6,gdp:68,gdpC:32630,lpi:3.52,lux:0.4,ecomm:50,conf:false,eu:true,open:70,hnwi:28,en:false,pop:2.1},
+  {n:'Lithuania',f:'🇱🇹',iso:'LTU',eb:52,players:['Zalando LT', 'Farfetch'],flyH:6,gdp:79,gdpC:28760,lpi:3.50,lux:0.4,ecomm:48,conf:false,eu:true,open:66,hnwi:28,en:false,pop:2.8},
+  {n:'Latvia',f:'🇱🇻',iso:'LVA',eb:50,players:['Zalando LV', 'Farfetch'],flyH:6,gdp:45,gdpC:24030,lpi:3.40,lux:0.3,ecomm:46,conf:false,eu:true,open:64,hnwi:16,en:false,pop:1.9},
+  {n:'Estonia',f:'🇪🇪',iso:'EST',eb:52,players:['Zalando EE', 'Farfetch'],flyH:6,gdp:42,gdpC:31540,lpi:3.55,lux:0.3,ecomm:58,conf:false,eu:true,open:74,hnwi:15,en:false,pop:1.4},
+  {n:'Serbia',f:'🇷🇸',iso:'SRB',eb:38,players:['Farfetch', 'Modivo', 'Zalando cross-border'],flyH:5,gdp:76,gdpC:11230,lpi:2.99,lux:0.4,ecomm:36,conf:false,eu:false,open:50,hnwi:24,en:false,pop:7},
+  {n:'Ukraine',f:'🇺🇦',iso:'UKR',eb:25,players:['Rozetka Fashion', 'Farfetch pre-war'],flyH:4,gdp:178,gdpC:5060,lpi:2.57,lux:1,ecomm:28,conf:true,eu:false,open:35,hnwi:11,en:false,pop:44},
+  {n:'Russia',f:'🇷🇺',iso:'RUS',eb:45,players:['Lamoda', 'Wildberries Luxury'],flyH:5,gdp:1862,gdpC:13010,lpi:2.76,lux:12,ecomm:35,conf:true,eu:false,open:26,hnwi:408,en:false,pop:145},
+  {n:'Belarus',f:'🇧🇾',iso:'BLR',eb:20,players:['Wildberries', 'Cross-border restricted'],flyH:5,gdp:73,gdpC:7760,lpi:2.75,lux:0.3,ecomm:28,conf:true,eu:false,open:26,hnwi:6,en:false,pop:9.4},
+  {n:'Moldova',f:'🇲🇩',iso:'MDA',eb:22,players:['Farfetch cross-border', 'Wildberries'],flyH:4,gdp:16,gdpC:6220,lpi:2.69,lux:0.1,ecomm:22,conf:false,eu:false,open:44,hnwi:1,en:false,pop:2.6},
+  {n:'Albania',f:'🇦🇱',iso:'ALB',eb:28,players:['Farfetch', 'ASOS cross-border'],flyH:5,gdp:23,gdpC:8060,lpi:2.42,lux:0.1,ecomm:28,conf:false,eu:false,open:46,hnwi:2,en:false,pop:2.8},
+  {n:'North Macedonia',f:'🇲🇰',iso:'MKD',eb:25,players:['Farfetch cross-border'],flyH:4,gdp:14,gdpC:7190,lpi:2.75,lux:0.1,ecomm:30,conf:false,eu:false,open:50,hnwi:2,en:false,pop:2},
+  {n:'Bosnia',f:'🇧🇦',iso:'BIH',eb:28,players:['Farfetch cross-border'],flyH:5,gdp:26,gdpC:8060,lpi:2.79,lux:0.1,ecomm:25,conf:false,eu:false,open:46,hnwi:2,en:false,pop:3.3},
+  {n:'Montenegro',f:'🇲🇪',iso:'MNE',eb:30,players:['Farfetch', 'Net-a-Porter'],flyH:5,gdp:7,gdpC:11040,lpi:2.71,lux:0.05,ecomm:28,conf:false,eu:false,open:52,hnwi:1,en:false,pop:0.6},
+  {n:'Kosovo',f:'🇽🇰',iso:'XKX',eb:20,players:['Cross-border only'],flyH:4,gdp:10,gdpC:5290,lpi:2.38,lux:0.05,ecomm:20,conf:false,eu:false,open:44,hnwi:0.5,en:false,pop:1.8},
+  {n:'Armenia',f:'🇦🇲',iso:'ARM',eb:22,players:['Wildberries', 'Farfetch'],flyH:3,gdp:24,gdpC:8150,lpi:2.48,lux:0.1,ecomm:18,conf:false,eu:false,open:44,hnwi:2,en:false,pop:3},
+  {n:'Georgia',f:'🇬🇪',iso:'GEO',eb:30,players:['Farfetch GE', 'Wildberries'],flyH:3,gdp:28,gdpC:7590,lpi:2.65,lux:0.1,ecomm:20,conf:false,eu:false,open:52,hnwi:2,en:false,pop:3.7},
+  // North America
+  {n:'United States',f:'🇺🇸',iso:'USA',eb:95,players:['Net-a-Porter US', 'Farfetch US', 'Mytheresa US', 'SSENSE', 'Neiman Marcus Online'],flyH:14,gdp:27360,gdpC:81630,lpi:3.98,lux:89,ecomm:53,conf:false,eu:false,open:78,hnwi:22720,en:true,pop:335},
+  {n:'Canada',f:'🇨🇦',iso:'CAN',eb:88,players:['SSENSE HQ', 'Farfetch CA', 'Net-a-Porter', 'Holt Renfrew Online'],flyH:14,gdp:2140,gdpC:55520,lpi:3.86,lux:12,ecomm:48,conf:false,eu:false,open:80,hnwi:1682,en:true,pop:38},
+  {n:'Mexico',f:'🇲🇽',iso:'MEX',eb:48,players:['Farfetch MX', 'Liverpool Online', 'Net-a-Porter'],flyH:16,gdp:1789,gdpC:13840,lpi:2.87,lux:6,ecomm:25,conf:false,eu:false,open:40,hnwi:236,en:false,pop:129},
+  // Caribbean & Central America
+  {n:'Panama',f:'🇵🇦',iso:'PAN',eb:30,players:['Farfetch', 'Amazon cross-border'],flyH:17,gdp:76,gdpC:17640,lpi:3.27,lux:0.5,ecomm:20,conf:false,eu:false,open:60,hnwi:18,en:false,pop:4.4},
+  {n:'Costa Rica',f:'🇨🇷',iso:'CRI',eb:25,players:['Farfetch cross-border'],flyH:17,gdp:68,gdpC:13260,lpi:2.79,lux:0.3,ecomm:18,conf:false,eu:false,open:56,hnwi:8,en:false,pop:5.2},
+  {n:'Dominican Republic',f:'🇩🇴',iso:'DOM',eb:22,players:['ASOS', 'Farfetch cross-border'],flyH:14,gdp:122,gdpC:11240,lpi:2.65,lux:0.4,ecomm:18,conf:false,eu:false,open:50,hnwi:6,en:false,pop:11},
+  {n:'Guatemala',f:'🇬🇹',iso:'GTM',eb:18,players:['ASOS cross-border'],flyH:17,gdp:102,gdpC:5740,lpi:2.62,lux:0.2,ecomm:12,conf:false,eu:false,open:38,hnwi:4,en:false,pop:18},
+  {n:'Cuba',f:'🇨🇺',iso:'CUB',eb:5,players:['No open market'],flyH:14,gdp:107,gdpC:9440,lpi:2.20,lux:0.05,ecomm:5,conf:false,eu:false,open:20,hnwi:0.5,en:false,pop:11},
+  {n:'Honduras',f:'🇭🇳',iso:'HND',eb:12,players:['ASOS cross-border'],flyH:17,gdp:34,gdpC:3250,lpi:2.46,lux:0.1,ecomm:10,conf:false,eu:false,open:34,hnwi:1,en:false,pop:10},
+  {n:'El Salvador',f:'🇸🇻',iso:'SLV',eb:15,players:['ASOS cross-border'],flyH:17,gdp:34,gdpC:5060,lpi:2.60,lux:0.1,ecomm:12,conf:false,eu:false,open:40,hnwi:2,en:false,pop:6.3},
+  {n:'Jamaica',f:'🇯🇲',iso:'JAM',eb:20,players:['ASOS', 'Farfetch cross-border'],flyH:14,gdp:18,gdpC:6110,lpi:2.59,lux:0.1,ecomm:15,conf:false,eu:false,open:50,hnwi:1,en:true,pop:3},
+  {n:'Trinidad & Tobago',f:'🇹🇹',iso:'TTO',eb:22,players:['Farfetch', 'ASOS'],flyH:14,gdp:27,gdpC:19060,lpi:2.68,lux:0.2,ecomm:20,conf:false,eu:false,open:54,hnwi:3,en:true,pop:1.4},
+  {n:'Barbados',f:'🇧🇧',iso:'BRB',eb:20,players:['Farfetch', 'Net-a-Porter'],flyH:14,gdp:6,gdpC:20500,lpi:2.72,lux:0.05,ecomm:22,conf:false,eu:false,open:58,hnwi:2,en:true,pop:0.3},
+  // South America
+  {n:'Brazil',f:'🇧🇷',iso:'BRA',eb:52,players:['Farfetch BR', 'Dafiti Luxury', 'Net-a-Porter BR'],flyH:12,gdp:2174,gdpC:10170,lpi:2.99,lux:10,ecomm:32,conf:false,eu:false,open:38,hnwi:188,en:false,pop:215},
+  {n:'Colombia',f:'🇨🇴',iso:'COL',eb:35,players:['Farfetch CO', 'Dafiti', 'ASOS'],flyH:16,gdp:363,gdpC:7050,lpi:2.83,lux:1.5,ecomm:22,conf:false,eu:false,open:42,hnwi:24,en:false,pop:52},
+  {n:'Chile',f:'🇨🇱',iso:'CHL',eb:38,players:['Farfetch CL', 'Dafiti', 'Falabella Online'],flyH:15,gdp:344,gdpC:17570,lpi:3.26,lux:1.5,ecomm:25,conf:false,eu:false,open:62,hnwi:52,en:false,pop:19},
+  {n:'Argentina',f:'🇦🇷',iso:'ARG',eb:30,players:['Mercado Libre Fashion', 'Farfetch AR', 'Dafiti'],flyH:16,gdp:641,gdpC:13730,lpi:2.78,lux:2,ecomm:26,conf:false,eu:false,open:32,hnwi:52,en:false,pop:46},
+  {n:'Peru',f:'🇵🇪',iso:'PER',eb:25,players:['Farfetch', 'Falabella Online'],flyH:17,gdp:268,gdpC:7840,lpi:2.69,lux:0.8,ecomm:16,conf:false,eu:false,open:44,hnwi:18,en:false,pop:34},
+  {n:'Venezuela',f:'🇻🇪',iso:'VEN',eb:8,players:['No significant players'],flyH:15,gdp:97,gdpC:3350,lpi:2.28,lux:0.2,ecomm:10,conf:true,eu:false,open:18,hnwi:3,en:false,pop:29},
+  {n:'Ecuador',f:'🇪🇨',iso:'ECU',eb:20,players:['Farfetch cross-border'],flyH:17,gdp:121,gdpC:6620,lpi:2.63,lux:0.3,ecomm:14,conf:false,eu:false,open:42,hnwi:5,en:false,pop:18},
+  {n:'Bolivia',f:'🇧🇴',iso:'BOL',eb:12,players:['Cross-border only'],flyH:17,gdp:44,gdpC:3680,lpi:2.47,lux:0.1,ecomm:10,conf:false,eu:false,open:34,hnwi:2,en:false,pop:12},
+  {n:'Paraguay',f:'🇵🇾',iso:'PRY',eb:15,players:['Cross-border only'],flyH:16,gdp:43,gdpC:5980,lpi:2.67,lux:0.1,ecomm:14,conf:false,eu:false,open:44,hnwi:3,en:false,pop:7.4},
+  {n:'Uruguay',f:'🇺🇾',iso:'URY',eb:28,players:['Farfetch', 'ASOS'],flyH:16,gdp:77,gdpC:21820,lpi:2.77,lux:0.4,ecomm:18,conf:false,eu:false,open:56,hnwi:9,en:false,pop:3.5},
+  // Oceania
+  {n:'Australia',f:'🇦🇺',iso:'AUS',eb:82,players:['Net-a-Porter AU', 'Farfetch AU', 'Mytheresa AU', 'The Iconic Luxury'],flyH:13,gdp:1693,gdpC:64490,lpi:3.75,lux:10,ecomm:47,conf:false,eu:false,open:82,hnwi:1200,en:true,pop:26},
+  {n:'New Zealand',f:'🇳🇿',iso:'NZL',eb:70,players:['Net-a-Porter NZ', 'Farfetch NZ', 'The Iconic'],flyH:16,gdp:253,gdpC:48430,lpi:3.75,lux:2,ecomm:50,conf:false,eu:false,open:80,hnwi:173,en:true,pop:5.1},
+  {n:'Papua New Guinea',f:'🇵🇬',iso:'PNG',eb:5,players:['No significant players'],flyH:11,gdp:30,gdpC:3280,lpi:2.14,lux:0.05,ecomm:5,conf:false,eu:false,open:30,hnwi:0.5,en:true,pop:10},
+  {n:'Fiji',f:'🇫🇯',iso:'FJI',eb:10,players:['Cross-border only'],flyH:14,gdp:5,gdpC:5430,lpi:2.36,lux:0.03,ecomm:10,conf:false,eu:false,open:44,hnwi:0.5,en:true,pop:0.9},
+];
+
+// Filter function lookup — kept separate so shallow copy of steps doesn't lose them
+const FILTERS = {
+  gcc: (c,p) => p.exGCC ? !c.gcc : true,
+  flight: (c,p) => c.flyH <= p.maxH,
+  conflict: (c,p) => {
+    if(c.conf) return false;
+    if(p.exIsrael && c.iso==='ISR') return false;
+    if(p.exRussia && c.iso==='RUS') return false;
+    if(p.exIran && c.iso==='IRN') return false;
+    return true;
+  },
+  eu: (c,p) => !p.exEU || !c.eu,
+  gdp: (c,p) => c.gdp >= p.minGdp || c.gdpC >= p.minGdpC,
+  lpi: (c,p) => c.lpi >= p.minLpi,
+  luxury: (c,p) => c.lux >= p.minLux,
+  ecomm: (c,p) => c.ecomm >= p.minEc,
+  hnwi: (c,p) => c.hnwi >= p.minH,
+  openness: (c,p) => c.open >= p.minOp,
+  english: (c,p) => !p.reqEn || c.en,
+  entrybarrier: (c,p) => c.eb <= p.maxEb
+};
+
+// Formatter lookup — same reason
+const FMTS = {
+  maxH: v => v + 'h',
+  minGdp: v => '$' + v + 'bn',
+  minGdpC: v => '$' + Number(v).toLocaleString(),
+  minLpi: v => Number(v).toFixed(1) + '/5',
+  minLux: v => '$' + v + 'bn',
+  minEc: v => v + '%',
+  minH: v => v + 'k',
+  minOp: v => v + '/100',
+  maxEb: v => v + '%'
+};
+
+const STEP_DEFS = [
+  {id:'gcc', label:'GCC countries', icon:'🏠', en:true,
+   desc:'GCC = UAE, Saudi Arabia, Qatar, Kuwait, Bahrain, Oman. Ounass home market. Exclude to focus on new markets, or include to benchmark against existing.',
+   src:'Gulf Cooperation Council membership',
+   params:[{id:'exGCC',label:'Exclude GCC countries',type:'bool',val:true}]},
+  {id:'flight', label:'Flight distance from DXB', icon:'✈', en:true,
+   desc:'Countries reachable within N flight hours from Dubai (IATA great-circle).',
+   src:'IATA great-circle calculator',
+   params:[{id:'maxH',label:'Max flight hours from DXB',min:1,max:20,step:1,val:10}]},
+  {id:'conflict', label:'Conflict & fragility exclusion', icon:'⚠', en:true,
+   desc:'Removes World Bank fragile/conflict-affected states. Manual exclusions for current geopolitics.',
+   src:'World Bank Harmonized List of Fragile Situations 2024',
+   params:[
+     {id:'exIsrael',label:'Exclude Israel',type:'bool',val:true},
+     {id:'exRussia',label:'Exclude Russia',type:'bool',val:true},
+     {id:'exIran',label:'Exclude Iran',type:'bool',val:true}
+   ]},
+  {id:'eu', label:'EU & UK exclusion', icon:'🇪🇺', en:true,
+   desc:'EU 27 + UK + Norway + Switzerland + Iceland excluded — established luxury ecomm players (Farfetch, NAP, Matches, Zalando) operate freely across this entire Western European bloc.',
+   src:'EU membership list + UK',
+   params:[{id:'exEU',label:'Exclude EU & UK',type:'bool',val:true}]},
+  {id:'gdp', label:'GDP & GDP per capita floor', icon:'📊', en:true,
+   desc:'Minimum market size and wealth threshold. Kuwait used as size reference benchmark.',
+   src:'IMF World Economic Outlook 2024',
+   params:[
+     {id:'minGdp',label:'Min GDP (USD bn)',min:10,max:2000,step:10,val:115},
+     {id:'minGdpC',label:'Min GDP/cap (USD)',min:500,max:50000,step:500,val:23000}
+   ]},
+  {id:'lpi', label:'Logistics Performance Index', icon:'🚚', en:true,
+   desc:'World Bank LPI 1–5. Customs, infrastructure, tracking — critical for luxury ecomm delivery.',
+   src:'World Bank Logistics Performance Index 2023',
+   params:[{id:'minLpi',label:'Min LPI score',min:2.0,max:4.5,step:0.1,val:3.0}]},
+  {id:'luxury', label:'Luxury market size', icon:'💎', en:false,
+   desc:'Minimum existing luxury goods market (Euromonitor). Ensures there is already luxury appetite.',
+   src:'Euromonitor / Statista Luxury Goods 2024',
+   params:[{id:'minLux',label:'Min luxury mkt (USD bn)',min:0.5,max:30,step:0.5,val:3}]},
+  {id:'ecomm', label:'Ecommerce penetration', icon:'📱', en:false,
+   desc:'% of retail via ecommerce — proxy for willingness to buy luxury online.',
+   src:'Statista Ecommerce Report 2024',
+   params:[{id:'minEc',label:'Min ecomm penetration %',min:5,max:70,step:5,val:20}]},
+  {id:'hnwi', label:'HNWI population', icon:'👑', en:false,
+   desc:'High-net-worth individuals (>$1M investable assets). Core luxury buyer segment.',
+   src:'Capgemini World Wealth Report 2024',
+   params:[{id:'minH',label:'Min HNWI (thousands)',min:5,max:500,step:5,val:50}]},
+  {id:'openness', label:'Trade openness index', icon:'🔓', en:false,
+   desc:'Composite of import regulations, trade openness, business environment (KOF / World Bank).',
+   src:'World Bank / KOF Globalisation Index 2024',
+   params:[{id:'minOp',label:'Min openness (0–100)',min:20,max:90,step:5,val:50}]},
+  {id:'english', label:'English market', icon:'💬', en:false,
+   desc:'Significant English-speaking population — reduces localisation burden for launch.',
+   src:'EF English Proficiency Index 2023',
+   params:[{id:'reqEn',label:'Require English-proficient market',type:'bool',val:true}]},
+  {id:'entrybarrier', label:'Entry barrier (market capture)', icon:'🚧', en:false,
+   desc:'Max % of online luxury market already captured by established players (Farfetch, Net-a-Porter, Mytheresa, Ssense, local platforms). Lower = more white space for Ounass.',
+   src:'Euromonitor / company filings / Farfetch investor reports 2024',
+   params:[{id:'maxEb',label:'Max market capture %',min:10,max:100,step:5,val:60}]}
+];
+
+// State
+let steps = STEP_DEFS.map(s => ({...s, params: s.params.map(p => ({...p}))}));
+let P = {};
+steps.forEach(s => { P[s.id] = {}; s.params.forEach(p => { P[s.id][p.id] = p.val; }); });
+let expState = {};
+steps.forEach(s => expState[s.id] = false);
+let dragSrc = null;
+
+function fmt(pid, val) {
+  return FMTS[pid] ? FMTS[pid](val) : val;
+}
+
+function score(c) {
+  const base = (c.lux/10) + (c.hnwi/1000) + (c.lpi/5*30) + (c.ecomm/100*20) + (c.open/100*20);
+  const ebPenalty = ((c.eb||0)/100) * 5;
+  return Math.max(0, Math.round((base/4 - ebPenalty) * 10) / 10);
+}
+
+function pipeline() {
+  const active = steps.filter(s => s.en);
+  let pool = [...ALL];
+  const stages = [{label:'Start', n:pool.length}];
+  active.forEach(s => {
+    pool = pool.filter(c => FILTERS[s.id](c, P[s.id]));
+    stages.push({label: s.label, n: pool.length});
+  });
+  // When no filters active, pool = ALL — this is correct, show everything
+  return { stages, final: [...pool].sort((a,b) => score(b) - score(a)) };
+}
+
+function render() {
+  renderSidebar();
+  const { stages, final } = pipeline();
+  renderFunnel(stages);
+  renderStats(final);
+  renderCards(final);
+}
+
+function renderSidebar() {
+  const el = document.getElementById('steps-list');
+  el.innerHTML = '';
+  steps.forEach((s, i) => {
+    const isExp = expState[s.id];
+    const card = document.createElement('div');
+    card.className = 'step-card' + (s.en ? '' : ' disabled');
+    card.draggable = true;
+    card.addEventListener('dragstart', e => {
+      dragSrc = i;
+      setTimeout(() => card.classList.add('dragging'), 0);
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      document.querySelectorAll('.step-card').forEach(c => c.classList.remove('drag-over'));
+    });
+    card.addEventListener('dragover', e => { e.preventDefault(); card.classList.add('drag-over'); });
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      card.classList.remove('drag-over');
+      if (dragSrc != null && dragSrc !== i) {
+        const moved = steps.splice(dragSrc, 1)[0];
+        steps.splice(i, 0, moved);
+        dragSrc = null;
+        render();
+      }
+    });
+
+    // Header
+    const hdr = document.createElement('div');
+    hdr.className = 'step-header';
+    hdr.innerHTML = `
+      <span class="drag-handle">⠿</span>
+      <span class="step-num">${i+1}</span>
+      <span class="step-name" style="cursor:pointer">${s.icon} ${s.label}</span>
+      <span class="step-count"></span>
+      <span class="expand-btn">${isExp ? '▲' : '▼'}</span>
+      <label class="toggle toggle-wrap">
+        <input type="checkbox" ${s.en ? 'checked' : ''}>
+        <span class="tog-slider"></span>
+      </label>`;
+    hdr.querySelector('.step-name').onclick = () => toggleExp(s.id);
+    hdr.querySelector('.expand-btn').onclick = () => toggleExp(s.id);
+    hdr.querySelector('input[type=checkbox]').addEventListener('change', function() {
+      toggleStep(i, this.checked);
+    });
+    card.appendChild(hdr);
+
+    // Body
+    const body = document.createElement('div');
+    body.className = 'step-body' + (isExp ? '' : ' closed');
+    const inner = document.createElement('div');
+    inner.style = 'padding-top:10px';
+    inner.innerHTML = `<div class="step-desc">${s.desc}</div><div class="step-source">Source: ${s.src}</div>`;
+
+    s.params.forEach(p => {
+      const row = document.createElement('div');
+      row.className = 'param-row';
+      if (p.type === 'bool') {
+        row.innerHTML = `<span class="param-label">${p.label}</span>
+          <label class="toggle">
+            <input type="checkbox" ${P[s.id][p.id] ? 'checked' : ''}>
+            <span class="tog-slider"></span>
+          </label>`;
+        row.querySelector('input').addEventListener('change', function() {
+          setP(s.id, p.id, this.checked);
+        });
+      } else {
+        // Top row: label left, value pill right
+        const topRow = document.createElement('div');
+        topRow.className = 'param-row-top';
+
+        const lbl = document.createElement('span');
+        lbl.className = 'param-label';
+        lbl.textContent = p.label;
+
+        const valSpan = document.createElement('span');
+        valSpan.className = 'param-val';
+        valSpan.id = 'pv-' + s.id + '-' + p.id;
+        valSpan.textContent = fmt(p.id, P[s.id][p.id]);
+
+        topRow.appendChild(lbl);
+        topRow.appendChild(valSpan);
+
+        // Bottom row: full-width slider
+        const slider = document.createElement('input');
+        slider.type = 'range';
+        slider.min = p.min;
+        slider.max = p.max;
+        slider.step = p.step;
+        slider.value = P[s.id][p.id];
+        slider.addEventListener('input', function() {
+          const v = +this.value;
+          P[s.id][p.id] = v;
+          valSpan.textContent = fmt(p.id, v);
+          const { stages, final } = pipeline();
+          renderFunnel(stages);
+          renderStats(final);
+          renderCards(final);
+        });
+
+        row.appendChild(topRow);
+        row.appendChild(slider);
+        inner.appendChild(row);
+        return;
+      }
+      inner.appendChild(row);
+    });
+
+    body.appendChild(inner);
+    card.appendChild(body);
+    el.appendChild(card);
+  });
+}
+
+function renderFunnel(stages) {
+  const el = document.getElementById('funnel');
+  el.innerHTML = '';
+  const max = stages[0].n || 1;
+  stages.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'f-stage';
+    const bh = Math.max(4, Math.round((s.n / max) * 58));
+    div.innerHTML = `<div class="f-bar" style="height:${bh}px"></div>
+      <div class="f-count">${s.n}</div>
+      <div class="f-label">${i === 0 ? 'All' : s.label.split(' ').slice(0,3).join(' ')}</div>`;
+    el.appendChild(div);
+    if (i < stages.length - 1) {
+      const arrow = document.createElement('div');
+      arrow.className = 'f-arrow';
+      arrow.textContent = '›';
+      el.appendChild(arrow);
+    }
+  });
+}
+
+function renderStats(list) {
+  document.getElementById('s-count').innerHTML = list.length + '<span> countries</span>';
+  if (!list.length) {
+    document.getElementById('s-lux').innerHTML = '—';
+    document.getElementById('s-hnwi').innerHTML = '—';
+    document.getElementById('s-lpi').innerHTML = '—';
+    return;
+  }
+  const avg = (k, d) => (list.reduce((a,c) => a + c[k], 0) / list.length).toFixed(d);
+  document.getElementById('s-lux').innerHTML = '$' + avg('lux', 1) + '<span>bn avg</span>';
+  document.getElementById('s-hnwi').innerHTML = Math.round(list.reduce((a,c) => a + c.hnwi, 0) / list.length) + '<span>k avg</span>';
+  document.getElementById('s-lpi').innerHTML = avg('lpi', 2) + '<span>/5 avg</span>';
+}
+
+function renderCards(list) {
+  const el = document.getElementById('country-grid');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty">No countries pass the current filters.<br>Try relaxing your thresholds.</div>';
+    return;
+  }
+  el.innerHTML = '';
+  list.forEach(c => {
+    const sc = score(c);
+    const card = document.createElement('div');
+    card.className = 'c-card';
+    const tags = [];
+    tags.push({t: 'LPI ' + c.lpi.toFixed(1), cl: c.lpi >= 3.8 ? 'ok' : c.lpi >= 3.2 ? 'warn' : 'bad'});
+    tags.push({t: 'Ecomm ' + c.ecomm + '%', cl: c.ecomm >= 40 ? 'ok' : c.ecomm >= 20 ? 'warn' : 'bad'});
+    tags.push({t: 'Entry ' + c.eb + '%', cl: c.eb <= 30 ? 'ok' : c.eb <= 55 ? 'warn' : 'bad'});
+    if (c.en) tags.push({t: 'EN', cl: 'ok'});
+    if (c.lux >= 10) tags.push({t: 'Lux $' + c.lux + 'bn', cl: 'ok'});
+    if (c.eb !== undefined) tags.push({t: (c.eb) + '% captured', cl: c.eb <= 35 ? 'ok' : c.eb <= 60 ? 'warn' : 'bad'});
+    card.innerHTML = `
+      <div class="c-flag">${c.f}</div>
+      <div>
+        <div class="c-name">${c.n}</div>
+        <div class="c-meta">GDP $${c.gdp.toLocaleString()}bn · GDP/cap $${c.gdpC.toLocaleString()} · HNWI ${c.hnwi}k · Lux $${c.lux}bn</div>
+      </div>
+      <div class="c-right">
+        <div class="c-score">${sc}</div>
+        <div class="c-score-label">composite<br>score</div>
+        <div class="c-tags">${tags.map(t => `<span class="tag ${t.cl}">${t.t}</span>`).join('')}</div>
+      </div>`;
+    card.onclick = () => openModal(c);
+    el.appendChild(card);
+  });
+}
+
+function ratingBar(val, max, cls) {
+  const pct = Math.min(100, Math.round((val / max) * 100));
+  return `<div class="m-bar-track"><div class="m-bar-fill ${cls}" style="width:${pct}%"></div></div>`;
+}
+
+function tagCls(val, good, mid) {
+  return val >= good ? 'ok' : val >= mid ? 'warn' : 'bad';
+}
+
+function openModal(c) {
+  // Remove existing
+  const existing = document.getElementById('country-modal');
+  if (existing) existing.remove();
+
+  const sc = score(c);
+  const activeFilters = steps.filter(s => s.en);
+  const passedAll = activeFilters.every(s => FILTERS[s.id](c, P[s.id]));
+
+  // Build data rows
+  const dataPoints = [
+    { label: 'Flight hours from DXB', val: c.flyH + 'h', raw: c.flyH, max: 20, good: 6, mid: 10, invert: true },
+    { label: 'GDP', val: '$' + c.gdp.toLocaleString() + 'bn', raw: Math.min(c.gdp, 5000), max: 5000, good: 1000, mid: 300 },
+    { label: 'GDP per capita', val: '$' + c.gdpC.toLocaleString(), raw: Math.min(c.gdpC, 80000), max: 80000, good: 25000, mid: 8000 },
+    { label: 'Luxury market size', val: '$' + c.lux + 'bn', raw: Math.min(c.lux, 50), max: 50, good: 8, mid: 3 },
+    { label: 'HNWI population', val: c.hnwi + 'k', raw: Math.min(c.hnwi, 2000), max: 2000, good: 200, mid: 50 },
+    { label: 'Logistics Performance Index', val: c.lpi.toFixed(2) + ' / 5', raw: c.lpi, max: 5, good: 3.8, mid: 3.0 },
+    { label: 'Ecommerce penetration', val: c.ecomm + '%', raw: c.ecomm, max: 75, good: 40, mid: 20 },
+    { label: 'Trade openness index', val: c.open + ' / 100', raw: c.open, max: 100, good: 65, mid: 45 },
+    { label: 'Population', val: c.pop + 'M', raw: Math.min(c.pop, 400), max: 400, good: 50, mid: 10 },
+    { label: 'Entry barrier (mkt captured)', val: c.eb + '%', raw: 100 - c.eb, max: 100, good: 60, mid: 30 },
+    { label: 'English market', val: c.en ? 'Yes' : 'No', raw: c.en ? 1 : 0, max: 1, good: 1, mid: 0.5 },
+    { label: 'Conflict / fragile state', val: c.conf ? 'Yes' : 'No', raw: c.conf ? 0 : 1, max: 1, good: 1, mid: 0.5 },
+    { label: 'EU / Western Europe bloc', val: c.eu ? 'Yes' : 'No', raw: null },
+  ];
+
+  const overlay = document.createElement('div');
+  overlay.id = 'country-modal';
+  overlay.className = 'modal-overlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+  overlay.innerHTML = `
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-flag">${c.f}</div>
+        <div class="modal-title-block">
+          <div class="modal-country-name">${c.n}</div>
+          <div class="modal-iso">${c.iso} &nbsp;·&nbsp; ${c.flyH}h from DXB</div>
+        </div>
+        <div class="modal-score-block">
+          <div class="modal-score">${sc}</div>
+          <div class="modal-score-lbl">composite score</div>
+        </div>
+        <button class="modal-close" onclick="document.getElementById('country-modal').remove()">✕</button>
+      </div>
+      <div class="modal-status ${passedAll ? 'status-pass' : 'status-fail'}">
+        ${passedAll
+          ? '✓ Passes all active filters (' + activeFilters.length + ' active)'
+          : '✗ Does not pass all active filters'}
+      </div>
+      <div class="modal-grid">
+        ${dataPoints.map(d => `
+          <div class="modal-row">
+            <div class="modal-row-label">${d.label}</div>
+            <div class="modal-row-right">
+              <div class="modal-row-val">${d.val}</div>
+              ${d.raw !== null ? ratingBar(
+                  d.invert ? (d.max - d.raw) : d.raw,
+                  d.max,
+                  tagCls(d.invert ? (d.max - d.raw) : d.raw, d.invert ? (d.max - d.good) : d.good, d.invert ? (d.max - d.mid) : d.mid)
+                ) : ''}
+            </div>
+          </div>`).join('')}
+      </div>
+      <div class="modal-competitors">
+        <div class="modal-competitors-header">
+          <span class="modal-comp-title">Online luxury players already active</span>
+          <span class="modal-comp-eb ${c.eb >= 70 ? 'eb-high' : c.eb >= 40 ? 'eb-mid' : 'eb-low'}">${c.eb}% market captured</span>
+        </div>
+        <div class="modal-comp-bar-wrap">
+          <div class="modal-comp-bar" style="width:${c.eb}%;background:${c.eb >= 70 ? '#d95b5b' : c.eb >= 40 ? '#e09a4a' : '#4caf7d'}"></div>
+        </div>
+        ${c.players && c.players.length > 0
+          ? '<div class="modal-comp-list">' + c.players.map(p => '<span class="modal-comp-pill">' + p + '</span>').join('') + '</div>'
+          : '<div class="modal-comp-empty">No established online luxury players identified</div>'}
+      </div>
+      <div class="modal-player-breakdown">
+        <div class="modal-pb-title">Estimated share per player</div>
+        ${(function() {
+          const players = c.players || [];
+          if (!players.length) return '<div class="modal-comp-empty">No players identified</div>';
+          const total = c.eb || 0;
+          // Distribute share across players — lead player gets ~40% of total, rest split remainder
+          // For well-known incumbents assign rough weights, otherwise split evenly
+          const weights = players.map((p, i) => {
+            const pl = p.toLowerCase();
+            if (pl.includes('farfetch') && i === 0) return 3.5;
+            if (pl.includes('farfetch')) return 3.0;
+            if (pl.includes('net-a-porter') || pl.includes('nap')) return 2.5;
+            if (pl.includes('mytheresa')) return 2.0;
+            if (pl.includes('ssense')) return 1.8;
+            if (pl.includes('matches')) return 1.6;
+            if (pl.includes('luisaviaroma') || pl.includes('yoox')) return 1.5;
+            if (pl.includes('tmall') || pl.includes('jd ')) return 3.0;
+            if (pl.includes('zalando')) return 2.0;
+            if (pl.includes('tata') || pl.includes('myntra') || pl.includes('ajio')) return 1.8;
+            if (pl.includes('dtc') || pl.includes('brand')) return 1.2;
+            return 1.0;
+          });
+          const wsum = weights.reduce((a, b) => a + b, 0);
+          return players.map((p, i) => {
+            const share = Math.round((weights[i] / wsum) * total);
+            const cl = share >= 20 ? 'bad' : share >= 10 ? 'warn' : 'ok';
+            return '<div class="modal-pb-row">'
+              + '<span class="modal-pb-name">' + p + '</span>'
+              + '<div class="modal-pb-bar-wrap"><div class="modal-pb-bar m-bar-fill ' + cl + '" style="width:' + Math.min(share * 1.8, 100) + '%"></div></div>'
+              + '<span class="modal-pb-pct">~' + share + '%</span>'
+              + '</div>';
+          }).join('');
+        })()}
+        <div class="modal-pb-whitespace">
+          <span class="modal-pb-ws-label">White space remaining</span>
+          <span class="modal-pb-ws-val" style="color:${(100-(c.eb||0)) >= 50 ? '#5fcc92' : (100-(c.eb||0)) >= 30 ? '#e8a855' : '#e06868'}">${100-(c.eb||0)}%</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="modal-footer-tags">
+          ${c.conf ? '<span class="tag bad">Conflict-affected</span>' : ''}
+          ${c.eu ? '<span class="tag warn">EU/W.Europe bloc</span>' : ''}
+          ${c.en ? '<span class="tag ok">English market</span>' : ''}
+          ${c.gcc ? '<span class="tag warn">GCC</span>' : ''}
+        </div>
+        <div class="modal-footer-sources">Sources: IMF WEO 2024 · World Bank LPI 2023 · Capgemini WRR 2024 · Euromonitor 2024 · Farfetch IR 2024</div>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+  // Animate in
+  requestAnimationFrame(() => overlay.classList.add('modal-visible'));
+}
+
+function toggleStep(i, v) { steps[i].en = v; render(); }
+function toggleExp(id) { expState[id] = !expState[id]; render(); }
+function setP(sid, pid, val) { P[sid][pid] = val; render(); }
+
+// Close modal on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const m = document.getElementById('country-modal');
+    if (m) m.remove();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
